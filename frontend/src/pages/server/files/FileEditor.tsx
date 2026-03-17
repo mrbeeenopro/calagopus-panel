@@ -135,7 +135,7 @@ function FileEditorComponent() {
             <FileImageViewerSettings />
           ) : null}
         </Group>
-        <div hidden={browsingWritableDirectory || params.action === 'image'}>
+        <div hidden={!browsingWritableDirectory || params.action === 'image'}>
           {params.action === 'edit' ? (
             <ServerCan action='files.update'>
               <Button loading={saving} onClick={() => saveFile()}>

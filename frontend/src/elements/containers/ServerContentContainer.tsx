@@ -16,6 +16,7 @@ import { ServerCan } from '../Can.tsx';
 import Notification from '../Notification.tsx';
 import Progress from '../Progress.tsx';
 import Tooltip from '../Tooltip.tsx';
+import EstimatedTimeArrival from '../time/EstimatedTimeArrival.tsx';
 import ContentContainer from './ContentContainer.tsx';
 
 export interface Props {
@@ -81,7 +82,11 @@ export default function ServerContentContainer(props: Props) {
       {fullscreen ? null : server.isTransferring ? (
         <div className='mt-2 px-4 lg:px-6 mb-4'>
           <Notification loading>
-            {t('pages.server.console.notification.transferring', {})}
+            <span className='flex flex-row items-center'>
+              {t('pages.server.console.notification.transferring', {})}
+              <EstimatedTimeArrival className='ml-1' progress={transferProgressArchive} total={transferProgressTotal} />
+            </span>
+
             <Tooltip
               label={`${bytesToString(transferProgressArchive)} / ${bytesToString(transferProgressTotal)}`}
               innerClassName='w-full'
@@ -95,7 +100,11 @@ export default function ServerContentContainer(props: Props) {
       ) : server.status === 'restoring_backup' ? (
         <div className='mt-2 px-4 lg:px-6 mb-4'>
           <Notification loading>
-            {t('pages.server.console.notification.restoringBackup', {})}
+            <span className='flex flex-row items-center'>
+              {t('pages.server.console.notification.restoringBackup', {})}
+              <EstimatedTimeArrival className='ml-1' progress={backupRestoreProgress} total={backupRestoreTotal} />
+            </span>
+
             <Tooltip
               label={`${bytesToString(backupRestoreProgress)} / ${bytesToString(backupRestoreTotal)}`}
               innerClassName='w-full'

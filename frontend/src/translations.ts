@@ -159,6 +159,14 @@ const baseTranslations = defineTranslations({
           copyManual: 'Copy to clipboard: Ctrl+C or Command+C, Enter',
         },
       },
+      estimatedTimeArrival: {
+        tooltip: {
+          estimating: 'Estimating completion time...',
+          estimated: 'Estimated completion time: {time}',
+        },
+        calculating: 'ETA: Calculating...',
+        calculated: 'ETA: {time}',
+      },
       container: {
         alert: {
           impersonating:
@@ -233,6 +241,43 @@ const baseTranslations = defineTranslations({
         },
         banner: {
           retrying: 'Retrying in {countdown}...',
+        },
+        listener: {
+          toast: {
+            backupCompleted: 'Backup completed successfully.',
+            backupFailed: 'Backup failed.',
+            backupRestoreCompleted: 'Backup restore completed successfully.',
+            installCompleted: 'Server Installation completed successfully.',
+            installFailed: 'Server Installation failed.',
+            operations: {
+              compressing: {
+                completed: 'Compressed {files} to `{path}` in {time}.',
+                failed: 'Failed to compress {files} to `{path}`:\n{error}',
+              },
+              decompressing: {
+                completed: 'Decompressed `{path}` to `{destination}` in {time}.',
+                failed: 'Failed to decompress `{path}` to `{destination}`:\n{error}',
+              },
+              pulling: {
+                completed: 'Pulled `{destination}` in {time}.',
+                failed: 'Failed to pull `{destination}`:\n{error}',
+              },
+              copying: {
+                completed: 'Copied `{path}` to `{destination}` in {time}.',
+                failed: 'Failed to copy `{path}` to `{destination}`:\n{error}',
+              },
+              copyingMany: {
+                completed: 'Copied {files} in {time}.',
+                failed: 'Failed to copy {files}:\n{error}',
+              },
+              copyingRemote: {
+                completedFrom: 'Copied {files} from remote server  in {time}.',
+                completedTo: 'Copied {files} to remote server in {time}.',
+                failedFrom: 'Failed to copy {files} from remote server:\n{error}',
+                failedTo: 'Failed to copy {files} to remote server:\n{error}',
+              },
+            },
+          },
         },
       },
     },
@@ -943,7 +988,7 @@ const baseTranslations = defineTranslations({
             uploading: 'Uploading: ',
             compressing: 'Compressing {files} from {path}',
             decompressing: 'Decompressing {path}',
-            pulling: 'Pulling {path}',
+            pulling: 'Pulling {destination}',
             copying: 'Copying {path} to {destination}',
             copyingMany: 'Copying {files}',
             receivingRemote: 'Receiving {files} from remote server',

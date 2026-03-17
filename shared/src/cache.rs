@@ -299,6 +299,11 @@ impl Cache {
         self.cache_calls.fetch_add(1, Ordering::Relaxed);
         let start_time = Instant::now();
 
+        if let Some(entry) = self.local.get(key).await {
+            tracing::debug!("found in moka cache");
+            return Ok(rmp_serde::from_slice::<T>(&entry.data)?);
+        }
+
         let entry = self
             .local
             .try_get_with(key.to_compact_string(), async move {

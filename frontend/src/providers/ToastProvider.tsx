@@ -61,7 +61,7 @@ const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [toastPosition, setToastPosition] = useState<z.infer<typeof userToastPosition>>('bottom_right');
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = useCallback((message: string, type: ToastType = 'success') => {
+  const addToast = useCallback((message: ReactNode, type: ToastType = 'success') => {
     const id = toastId++;
     setToasts((prev) => [...prev, { id, message, type }]);
 

@@ -166,7 +166,7 @@ function FileOperationsProgress() {
                       : operation.type === 'decompress'
                         ? t('pages.server.files.operations.decompressing', { path: operation.path })
                         : operation.type === 'pull'
-                          ? t('pages.server.files.operations.pulling', { path: operation.path })
+                          ? t('pages.server.files.operations.pulling', { destination: operation.destinationPath })
                           : operation.type === 'copy'
                             ? t('pages.server.files.operations.copying', {
                                 path: operation.path,

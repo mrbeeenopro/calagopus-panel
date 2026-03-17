@@ -3,14 +3,17 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { serverFileOperationSchema } from '@/lib/schemas/server/files.ts';
 import { serverImagePullProgressSchema, serverResourceUsageSchema } from '@/lib/schemas/server/server.ts';
+import { formatMiliseconds } from '@/lib/time.ts';
 import { transformKeysToCamelCase } from '@/lib/transformers.ts';
 import useWebsocketEvent, { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import { useUserStore } from '@/stores/user.ts';
 
 export default function WebsocketListener() {
   const queryClient = useQueryClient();
+  const { t, tItem } = useTranslations();
   const { addToast } = useToast();
   const { addServerResourceUsage } = useUserStore();
   const {
@@ -112,6 +115,12 @@ export default function WebsocketListener() {
       return;
     }
 
+    if (wsData.successful) {
+      addToast(t('elements.serverWebsocket.listener.toast.backupCompleted', {}), 'success');
+    } else {
+      addToast(t('elements.serverWebsocket.listener.toast.backupFailed', {}), 'error');
+    }
+
     updateBackup(uuid, {
       isSuccessful: wsData.successful,
       checksum: `${wsData.checksum_type}:${wsData.checksum}`,
@@ -138,6 +147,12 @@ export default function WebsocketListener() {
     setBackupRestoreProgress(wsData.progress, wsData.total);
   });
 
+  useWebsocketEvent(SocketEvent.BACKUP_RESTORE_COMPLETED, () => {
+    updateServer({ status: null });
+
+    addToast(t('elements.serverWebsocket.listener.toast.backupRestoreCompleted', {}), 'success');
+  });
+
   useWebsocketEvent(SocketEvent.TRANSFER_PROGRESS, (data) => {
     let wsData: { archive_progress: number; network_progress: number; total: number };
     try {
@@ -149,16 +164,18 @@ export default function WebsocketListener() {
     setTransferProgress(wsData.archive_progress, wsData.network_progress, wsData.total);
   });
 
-  useWebsocketEvent(SocketEvent.BACKUP_RESTORE_COMPLETED, () => {
-    updateServer({ status: null });
-  });
-
   useWebsocketEvent(SocketEvent.INSTALL_STARTED, () => {
     updateServer({ status: 'installing' });
   });
 
   useWebsocketEvent(SocketEvent.INSTALL_COMPLETED, (successful) => {
     updateServer({ status: successful === 'true' ? null : 'install_failed' });
+
+    if (successful === 'true') {
+      addToast(t('elements.serverWebsocket.listener.toast.installCompleted', {}), 'success');
+    } else {
+      addToast(t('elements.serverWebsocket.listener.toast.installFailed', {}), 'error');
+    }
   });
 
   useWebsocketEvent(SocketEvent.SCHEDULE_STARTED, (uuid) => {
@@ -196,31 +213,81 @@ export default function WebsocketListener() {
     const fileOperation = fileOperations.get(uuid);
     if (!fileOperation) return;
 
+    const totalTime = formatMiliseconds(Date.now() - new Date(fileOperation.startTime).getTime());
+
     switch (fileOperation.type) {
       case 'compress':
-        addToast(`Compressed files to ${fileOperation.path} successfully.`, 'success');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.compressing.completed', {
+            files: tItem('file', fileOperation.files.length),
+            path: fileOperation.path,
+            time: totalTime,
+          }).md(),
+          'success',
+        );
+
         break;
       case 'decompress':
         addToast(
-          `Decompressed ${fileOperation.path} to ${fileOperation.destinationPath || '/'} successfully.`,
+          t('elements.serverWebsocket.listener.toast.operations.decompressing.completed', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath || '/',
+            time: totalTime,
+          }).md(),
           'success',
         );
+
         break;
       case 'pull':
-        addToast(`Pulled ${fileOperation.path} successfully.`, 'success');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.pulling.completed', {
+            destination: fileOperation.destinationPath,
+            time: totalTime,
+          }).md(),
+          'success',
+        );
+
         break;
       case 'copy':
-        addToast(`Copied ${fileOperation.path} to ${fileOperation.destinationPath} successfully.`, 'success');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copying.completed', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath,
+            time: totalTime,
+          }).md(),
+          'success',
+        );
+
         break;
       case 'copy_many':
-        addToast(`Copied files from ${fileOperation.path} successfully.`, 'success');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copyingMany.completed', {
+            files: tItem('file', fileOperation.files.length),
+            time: totalTime,
+          }).md(),
+          'success',
+        );
+
         break;
       case 'copy_remote':
         if (fileOperation.destinationServer === server.uuid) {
-          addToast(`Received files from remote server successfully.`, 'success');
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.completedFrom', {
+              files: tItem('file', fileOperation.files.length),
+              time: totalTime,
+            }).md(),
+            'success',
+          );
         } else {
-          addToast(`Sent files to remote server successfully.`, 'success');
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.completedTo', {
+              files: tItem('file', fileOperation.files.length),
+              time: totalTime,
+            }).md(),
+            'success',
+          );
         }
+
         break;
       default:
         break;
@@ -236,29 +303,77 @@ export default function WebsocketListener() {
 
     switch (fileOperation.type) {
       case 'compress':
-        addToast(`Failed to compress files to ${fileOperation.path}:\n${error}`, 'error');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.compressing.failed', {
+            files: tItem('file', fileOperation.files.length),
+            path: fileOperation.path,
+            error,
+          }).md(),
+          'error',
+        );
+
         break;
       case 'decompress':
         addToast(
-          `Failed to decompress ${fileOperation.path} to ${fileOperation.destinationPath || '/'}:\n${error}`,
+          t('elements.serverWebsocket.listener.toast.operations.decompressing.failed', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath || '/',
+            error,
+          }).md(),
           'error',
         );
+
         break;
       case 'pull':
-        addToast(`Failed to pull ${fileOperation.path}:\n${error}`, 'error');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.pulling.failed', {
+            destination: fileOperation.destinationPath,
+            error,
+          }).md(),
+          'error',
+        );
+
         break;
       case 'copy':
-        addToast(`Failed to copy ${fileOperation.path} to ${fileOperation.destinationPath}:\n${error}`, 'error');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copying.failed', {
+            path: fileOperation.path,
+            destination: fileOperation.destinationPath,
+            error,
+          }).md(),
+          'error',
+        );
+
         break;
       case 'copy_many':
-        addToast(`Failed to copy files from ${fileOperation.path}:\n${error}`, 'error');
+        addToast(
+          t('elements.serverWebsocket.listener.toast.operations.copyingMany.failed', {
+            files: tItem('file', fileOperation.files.length),
+            error,
+          }).md(),
+          'error',
+        );
+
         break;
       case 'copy_remote':
         if (fileOperation.destinationServer === server.uuid) {
-          addToast(`Failed to receive files from remote server:\n${error}`, 'error');
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.failedFrom', {
+              files: tItem('file', fileOperation.files.length),
+              error,
+            }).md(),
+            'error',
+          );
         } else {
-          addToast(`Failed to send files to remote server:\n${error}`, 'error');
+          addToast(
+            t('elements.serverWebsocket.listener.toast.operations.copyingRemote.failedTo', {
+              files: tItem('file', fileOperation.files.length),
+              error,
+            }).md(),
+            'error',
+          );
         }
+
         break;
       default:
         break;

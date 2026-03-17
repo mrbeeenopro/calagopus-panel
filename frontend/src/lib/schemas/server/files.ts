@@ -76,7 +76,7 @@ export const serverFileOperationDecompressSchema = serverFileOperationBaseSchema
 
 export const serverFileOperationPullSchema = serverFileOperationBaseSchema.extend({
   type: z.literal('pull'),
-  path: z.string(),
+  destinationPath: z.string(),
 });
 
 export const serverFileOperationCopySchema = serverFileOperationBaseSchema.extend({
