@@ -178,7 +178,10 @@ export default function EggCreateOrUpdate({
           URL.revokeObjectURL(fileURL);
           downloadLink.remove();
         } else {
-          const yamlData = jsYaml.dump(data, { flowLevel: -1, forceQuotes: true });
+          const yamlData = jsYaml.dump(data, {
+            flowLevel: -1,
+            forceQuotes: true,
+          });
           const fileURL = URL.createObjectURL(new Blob([yamlData], { type: 'text/plain' }));
           const downloadLink = document.createElement('a');
           downloadLink.href = fileURL;
@@ -349,7 +352,9 @@ export default function EggCreateOrUpdate({
                 label='Strip ANSI from startup messages'
                 description='Removes ANSI control characters from the console output before matching startup completion.'
                 key={form.key('configStartup.stripAnsi')}
-                {...form.getInputProps('configStartup.stripAnsi', { type: 'checkbox' })}
+                {...form.getInputProps('configStartup.stripAnsi', {
+                  type: 'checkbox',
+                })}
               />
             </Group>
           </TitleCard>
@@ -461,34 +466,64 @@ export default function EggCreateOrUpdate({
                       />
                     </Group>
 
+                    <Switch
+                      label='Create New File'
+                      description='If enabled, the file will be created if it does not exist. If disabled, the file must already exist or the replacement will fail.'
+                      key={form.key(`configFiles.${index}.createNew`)}
+                      {...form.getInputProps(`configFiles.${index}.createNew`, {
+                        type: 'checkbox',
+                      })}
+                    />
+
                     <div className='flex flex-col'>
                       {form.getValues().configFiles[index].replace.length === 0 ? (
                         <p className='mb-2'>No replacements defined.</p>
                       ) : (
                         form.getValues().configFiles[index].replace.map((_, replaceIndex) => (
                           <Card key={replaceIndex} className='flex flex-row! mb-2'>
-                            <Group grow w='100%'>
-                              <TextInput
-                                withAsterisk
-                                label='Match'
-                                placeholder='Match'
-                                key={form.key(`configFiles.${index}.replace.${replaceIndex}.match`)}
-                                {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.match`)}
-                              />
-                              <TextInput
-                                label='If Value'
-                                placeholder='If Value'
-                                key={form.key(`configFiles.${index}.replace.${replaceIndex}.ifValue`)}
-                                {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.ifValue`)}
-                              />
-                              <TextInput
-                                withAsterisk
-                                label='Replace With'
-                                placeholder='Replace With'
-                                key={form.key(`configFiles.${index}.replace.${replaceIndex}.replaceWith`)}
-                                {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.replaceWith`)}
-                              />
-                            </Group>
+                            <div className='flex flex-col w-full'>
+                              <Group grow w='100%'>
+                                <TextInput
+                                  withAsterisk
+                                  label='Match'
+                                  placeholder='Match'
+                                  key={form.key(`configFiles.${index}.replace.${replaceIndex}.match`)}
+                                  {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.match`)}
+                                />
+                                <TextInput
+                                  label='If Value'
+                                  placeholder='If Value'
+                                  key={form.key(`configFiles.${index}.replace.${replaceIndex}.ifValue`)}
+                                  {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.ifValue`)}
+                                />
+                                <TextInput
+                                  withAsterisk
+                                  label='Replace With'
+                                  placeholder='Replace With'
+                                  key={form.key(`configFiles.${index}.replace.${replaceIndex}.replaceWith`)}
+                                  {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.replaceWith`)}
+                                />
+                              </Group>
+                              <Group grow mt='md'>
+                                <Switch
+                                  label='Insert New'
+                                  description='If enabled, if no existing value matches the "Match" field, the "Replace With" value will be inserted into the file. If disabled, if no match is found, no changes will be made to the file.'
+                                  key={form.key(`configFiles.${index}.replace.${replaceIndex}.insertNew`)}
+                                  {...form.getInputProps(`configFiles.${index}.replace.${replaceIndex}.insertNew`, {
+                                    type: 'checkbox',
+                                  })}
+                                />
+                                <Switch
+                                  label='Update Existing'
+                                  description='If enabled, if a match is found, it will be replaced with the "Replace With" value. If disabled, the replacement will only insert new values and will fail if a match is found.'
+                                  key={form.key(`configFiles.${index}.replace.${replaceIndex}.updateExisting`)}
+                                  {...form.getInputProps(
+                                    `configFiles.${index}.replace.${replaceIndex}.updateExisting`,
+                                    { type: 'checkbox' },
+                                  )}
+                                />
+                              </Group>
+                            </div>
 
                             <ActionIcon
                               color='red'
@@ -527,6 +562,8 @@ export default function EggCreateOrUpdate({
                                   ...configFile.replace,
                                   {
                                     match: '',
+                                    insertNew: false,
+                                    updateExisting: true,
                                     ifValue: null,
                                     replaceWith: '',
                                   },
@@ -571,6 +608,7 @@ export default function EggCreateOrUpdate({
                     {
                       file: '',
                       parser: 'file',
+                      createNew: true,
                       replace: [],
                     },
                   ],

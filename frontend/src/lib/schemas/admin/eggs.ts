@@ -18,9 +18,12 @@ export const adminEggSchema = z.object({
     z.object({
       file: z.string(),
       parser: z.enum(['file', 'yaml', 'properties', 'ini', 'json', 'xml', 'toml']),
+      createNew: z.boolean(),
       replace: z.array(
         z.object({
           match: z.string(),
+          insertNew: z.boolean(),
+          updateExisting: z.boolean(),
           ifValue: z.preprocess(nullableString, z.string().nullable()),
           replaceWith: z.string(),
         }),

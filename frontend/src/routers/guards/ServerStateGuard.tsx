@@ -39,7 +39,7 @@ export default function ServerStateGuard() {
   };
 
   if (
-    (((server.isSuspended && !isAdmin(user)) || server.status !== null) &&
+    (((server.isSuspended && !isAdmin(user)) || server.status !== null || server.isTransferring) &&
       location.pathname !== `/server/${server.uuid}` &&
       location.pathname !== `/server/${server.uuid}/` &&
       location.pathname !== `/server/${server.uuidShort}` &&
@@ -65,11 +65,13 @@ export default function ServerStateGuard() {
               ? t('elements.screenBlock.serverConflict.contentSuspended', {})
               : server.nodeMaintenanceEnabled
                 ? t('elements.screenBlock.serverConflict.contentNodeMaintenance', {})
-                : server.status === 'install_failed'
-                  ? t('elements.screenBlock.serverConflict.contentInstallFailed', {})
-                  : server.status === 'installing'
-                    ? t('elements.screenBlock.serverConflict.contentInstalling', {})
-                    : t('elements.screenBlock.serverConflict.contentRestoringBackup', {})
+                : server.isTransferring
+                  ? t('elements.screenBlock.serverConflict.contentTransferring', {})
+                  : server.status === 'install_failed'
+                    ? t('elements.screenBlock.serverConflict.contentInstallFailed', {})
+                    : server.status === 'installing'
+                      ? t('elements.screenBlock.serverConflict.contentInstalling', {})
+                      : t('elements.screenBlock.serverConflict.contentRestoringBackup', {})
           }
         />
         <div className='flex flex-row items-center justify-center gap-4 mt-6'>
