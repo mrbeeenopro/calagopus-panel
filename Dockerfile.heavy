@@ -1,5 +1,13 @@
 FROM node:24-alpine AS node_source
 
+# ---
+FROM rust:alpine AS planner
+RUN apk add --no-cache build-base && cargo install cargo-chef
+COPY . /app/repo
+WORKDIR /app/repo
+RUN cargo chef prepare --recipe-path recipe.json
+
+# ---
 FROM rust:alpine AS builder
 
 RUN apk add --no-cache libstdc++ inotify-tools git perl build-base mold clang
@@ -10,15 +18,22 @@ RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 RUN npm install -g pnpm@10
 
-COPY . /app/repo
+RUN cargo install cargo-chef
+
 WORKDIR /app/repo
 
-RUN cd frontend && pnpm install --frozen-lockfile && pnpm build:ci
-
+COPY --from=planner /app/repo/recipe.json recipe.json
 RUN mkdir -p .cargo && \
     printf '[target."x86_64-unknown-linux-musl"]\nlinker = "clang"\nrustflags = ["-C", "link-arg=-fuse-ld=mold"]\n' > .cargo/config.toml
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo chef cook --profile heavy-release --recipe-path recipe.json
 
-RUN cargo build --profile heavy-release
+COPY . /app/repo
+RUN cd frontend && pnpm install --frozen-lockfile && pnpm build:ci
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo build --profile heavy-release
 
 COPY entrypoint.heavy.sh /entrypoint.sh
 
