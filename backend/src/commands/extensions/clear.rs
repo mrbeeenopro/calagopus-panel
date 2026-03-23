@@ -2,26 +2,25 @@ use super::apply::which;
 use anyhow::Context;
 use clap::{Args, FromArgMatches};
 use colored::Colorize;
+use compact_str::ToCompactString;
 use serde::Deserialize;
-use shared::extensions::distr::MetadataToml;
+use shared::extensions::distr::SlimExtensionDistrFile;
 use std::{collections::HashMap, path::Path};
 use tokio::process::Command;
 
 #[derive(Args)]
-pub struct RemoveArgs {
-    #[arg(help = "the extension package name to remove")]
-    package_name: String,
+pub struct ClearArgs {
     #[arg(
         long = "remove-migrations",
-        help = "whether to remove the database migrations of this extension (usually not recommended)",
+        help = "whether to remove the database migrations of the extensions (usually not recommended)",
         default_value = "false"
     )]
     remove_migrations: bool,
 }
 
-pub struct RemoveCommand;
+pub struct ClearCommand;
 
-impl shared::extensions::commands::CliCommand<RemoveArgs> for RemoveCommand {
+impl shared::extensions::commands::CliCommand<ClearArgs> for ClearCommand {
     fn get_command(&self, command: clap::Command) -> clap::Command {
         command
     }
@@ -29,7 +28,7 @@ impl shared::extensions::commands::CliCommand<RemoveArgs> for RemoveCommand {
     fn get_executor(self) -> Box<shared::extensions::commands::ExecutorFunc> {
         Box::new(|_env, arg_matches| {
             Box::pin(async move {
-                let args = RemoveArgs::from_arg_matches(&arg_matches)?;
+                let args = ClearArgs::from_arg_matches(&arg_matches)?;
 
                 if tokio::fs::metadata(".sqlx")
                     .await
@@ -45,51 +44,10 @@ impl shared::extensions::commands::CliCommand<RemoveArgs> for RemoveCommand {
                     return Ok(1);
                 }
 
-                let frontend_path = Path::new("frontend/extensions").join(
-                    MetadataToml::convert_package_name_to_identifier(&args.package_name),
-                );
-                if tokio::fs::metadata(&frontend_path)
-                    .await
-                    .ok()
-                    .is_none_or(|e| !e.is_dir())
-                {
-                    eprintln!(
-                        "{} {} {}",
-                        "failed to find".red(),
-                        format!(
-                            "frontend/extensions/{}",
-                            MetadataToml::convert_package_name_to_identifier(&args.package_name),
-                        )
-                        .bright_red(),
-                        "directory, make sure you are in the panel root.".red()
-                    );
-                    return Ok(1);
-                }
-
-                let backend_path = Path::new("backend-extensions").join(
-                    MetadataToml::convert_package_name_to_identifier(&args.package_name),
-                );
-                if tokio::fs::metadata(&backend_path)
-                    .await
-                    .ok()
-                    .is_none_or(|e| !e.is_dir())
-                {
-                    eprintln!(
-                        "{} {} {}",
-                        "failed to find".red(),
-                        format!(
-                            "backend-extensions/{}",
-                            MetadataToml::convert_package_name_to_identifier(&args.package_name),
-                        )
-                        .bright_red(),
-                        "directory, make sure you are in the panel root.".red()
-                    );
-                    return Ok(1);
-                }
-
-                let migrations_path = Path::new("database/extension-migrations").join(
-                    MetadataToml::convert_package_name_to_identifier(&args.package_name),
-                );
+                let installed_extensions = tokio::task::spawn_blocking(move || {
+                    SlimExtensionDistrFile::parse_from_directory(".")
+                })
+                .await??;
 
                 let cargo_bin = which("cargo")
                     .await
@@ -161,13 +119,73 @@ impl shared::extensions::commands::CliCommand<RemoveArgs> for RemoveCommand {
                     return Ok(1);
                 }
 
-                tokio::fs::remove_dir_all(frontend_path).await?;
-                tokio::fs::remove_dir_all(backend_path).await?;
-                tokio::fs::copy(
-                    Path::new("backend-extensions/internal-list/Cargo.template.toml"),
-                    Path::new("backend-extensions/internal-list/Cargo.toml"),
-                )
-                .await?;
+                for extension in &installed_extensions {
+                    let frontend_path = Path::new("frontend/extensions")
+                        .join(extension.metadata_toml.get_package_identifier());
+                    if tokio::fs::metadata(&frontend_path)
+                        .await
+                        .ok()
+                        .is_none_or(|e| !e.is_dir())
+                    {
+                        eprintln!(
+                            "{} {} {}",
+                            "failed to find".red(),
+                            format!(
+                                "frontend/extensions/{}",
+                                extension.metadata_toml.get_package_identifier(),
+                            )
+                            .bright_red(),
+                            "directory, make sure you are in the panel root - ignoring this extension.".red()
+                        );
+                        continue;
+                    }
+
+                    let backend_path = Path::new("backend-extensions")
+                        .join(extension.metadata_toml.get_package_identifier());
+                    if tokio::fs::metadata(&backend_path)
+                        .await
+                        .ok()
+                        .is_none_or(|e| !e.is_dir())
+                    {
+                        eprintln!(
+                            "{} {} {}",
+                            "failed to find".red(),
+                            format!(
+                                "backend-extensions/{}",
+                                extension.metadata_toml.get_package_identifier(),
+                            )
+                            .bright_red(),
+                            "directory, make sure you are in the panel root - ignoring this extension.".red()
+                        );
+                        continue;
+                    }
+
+                    let migrations_path = Path::new("database/extension-migrations")
+                        .join(extension.metadata_toml.get_package_identifier());
+
+                    tokio::fs::remove_dir_all(frontend_path).await?;
+                    tokio::fs::remove_dir_all(backend_path).await?;
+                    tokio::fs::copy(
+                        Path::new("backend-extensions/internal-list/Cargo.template.toml"),
+                        Path::new("backend-extensions/internal-list/Cargo.toml"),
+                    )
+                    .await?;
+
+                    if args.remove_migrations && tokio::fs::metadata(&migrations_path).await.is_ok()
+                    {
+                        tokio::fs::remove_dir_all(migrations_path).await?;
+
+                        println!("removed database migrations for this extension");
+                        println!(
+                            "this did NOT run any down migrations, it only removed the migration files from the filesystem, use with caution as this can lead to an inconsistent state if the migrations have already been applied to the database"
+                        );
+                    }
+
+                    println!(
+                        "sucessfully removed {}",
+                        extension.metadata_toml.package_name.cyan()
+                    );
+                }
 
                 if let Err(err) = tokio::task::spawn_blocking(|| {
                     shared::extensions::distr::resync_extension_list()
@@ -201,16 +219,10 @@ impl shared::extensions::commands::CliCommand<RemoveArgs> for RemoveCommand {
                     );
                 }
 
-                if args.remove_migrations && tokio::fs::metadata(&migrations_path).await.is_ok() {
-                    tokio::fs::remove_dir_all(migrations_path).await?;
-
-                    println!("removed database migrations for this extension");
-                    println!(
-                        "this did NOT run any down migrations, it only removed the migration files from the filesystem, use with caution as this can lead to an inconsistent state if the migrations have already been applied to the database"
-                    );
-                }
-
-                println!("sucessfully removed {}", args.package_name.cyan());
+                println!(
+                    "sucessfully removed {} extensions.",
+                    installed_extensions.len().to_compact_string().cyan()
+                );
 
                 Ok(0)
             })

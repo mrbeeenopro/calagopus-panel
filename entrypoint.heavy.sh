@@ -28,6 +28,9 @@ if [ ! -d "/app/repo/database/extension-migrations" ]; then
 	exit 1
 fi
 
+PROFILE=${CARGO_BUILD_PROFILE:-balanced}
+PROFILE_PATH=${CARGO_TARGET_PROFILE:-heavy-release}
+
 cp -R /app/translations/* /app/repo/frontend/public/translations/
 
 # calculate the combined sha256 hash of all arguments' contents
@@ -60,7 +63,7 @@ start_panel() {
 	echo "panel-rs started with PID: $PANEL_PID"
 }
 
-PANEL_VERSION=$(/app/repo/target/heavy-release/panel-rs version)
+PANEL_VERSION=$(/app/repo/target/$PROFILE_PATH/panel-rs version)
 PANEL_VERSION=$(echo $PANEL_VERSION | awk '{print $2}')
 
 execute_build() {
@@ -78,27 +81,31 @@ execute_build() {
 	BINARY_PATH="/app/binaries/$PANEL_VERSION/$EXT_HASH/panel-rs"
 
 	echo "Building new binary with current extensions..."
+
+	# clear previous log
+	> "$EXTENSION_LOG"
+
+	# clear all existing extensions before re-adding
+	/app/repo/target/$PROFILE_PATH/panel-rs extensions clear >> "$EXTENSION_LOG" 2>&1
+
 	# loop over all extension files
 	for ext_file in /app/extensions/*.c7s.zip; do
 		echo "Adding extension: $ext_file"
-		/app/repo/target/heavy-release/panel-rs extensions add "$ext_file" --skip-version-check >> "$EXTENSION_LOG" 2>&1
+		/app/repo/target/$PROFILE_PATH/panel-rs extensions add "$ext_file" --skip-version-check >> "$EXTENSION_LOG" 2>&1
 	done
 
-	local PROFILE="balanced"
-	local PROFILE_PATH="heavy-release"
-
 	# resync internal extension list
-	/app/repo/target/heavy-release/panel-rs extensions resync >> "$EXTENSION_LOG" 2>&1
+	/app/repo/target/$PROFILE_PATH/panel-rs extensions resync >> "$EXTENSION_LOG" 2>&1
 
 	# apply changes
 	export NODE_OPTIONS="--max-old-space-size=2048"
-	/app/repo/target/heavy-release/panel-rs extensions apply --skip-replace-binary --profile $PROFILE >> "$EXTENSION_LOG" 2>&1
-
-	cp -R /app/repo/frontend/public/translations/* /app/translations/
+	/app/repo/target/$PROFILE_PATH/panel-rs extensions apply --skip-replace-binary --profile $PROFILE >> "$EXTENSION_LOG" 2>&1
 
 	local EXIT_CODE=$?
 
-	# check status of last command
+	cp -R /app/repo/frontend/public/translations/* /app/translations/
+
+	# check status of extensions apply
 	if [ $EXIT_CODE -eq 0 ]; then
 		echo "Extension build successful. Saving new binary."
 		echo 0 > /tmp/extension_build.exitcode
@@ -129,7 +136,7 @@ if [ -f "$BINARY_PATH" ]; then
 	start_panel "$BINARY_PATH"
 else
 	echo "No existing binary found for current extensions. Temporarily using default binary."
-	start_panel "/app/repo/target/heavy-release/panel-rs"
+	start_panel "/app/repo/target/$PROFILE_PATH/panel-rs"
 
 	# execute build if extensions directory is not empty
 	if [ "$(ls -A /app/extensions)" ]; then

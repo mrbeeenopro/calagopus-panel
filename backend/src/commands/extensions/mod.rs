@@ -2,6 +2,7 @@ use shared::extensions::commands::CliCommandGroupBuilder;
 
 mod add;
 mod apply;
+mod clear;
 mod export;
 mod init;
 mod inspect;
@@ -51,6 +52,7 @@ pub fn commands(cli: CliCommandGroupBuilder) -> CliCommandGroupBuilder {
         "Removes an extension using its identifier.",
         remove::RemoveCommand,
     )
+    .add_command("clear", "Removes all extensions.", clear::ClearCommand)
     .add_command(
         "update",
         "Updates an extension using its identifier.",

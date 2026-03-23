@@ -301,3 +301,13 @@ impl Deref for ConstructedExtension {
         &self.extension
     }
 }
+
+#[derive(ToSchema, Serialize, Clone)]
+pub struct PendingExtension {
+    pub metadata_toml: distr::MetadataToml,
+    pub package_name: compact_str::CompactString,
+    pub description: compact_str::CompactString,
+    pub authors: Vec<compact_str::CompactString>,
+    #[schema(value_type = String)]
+    pub version: semver::Version,
+}

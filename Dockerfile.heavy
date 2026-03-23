@@ -34,5 +34,7 @@ RUN cargo build --profile heavy-release
 COPY entrypoint.heavy.sh /entrypoint.sh
 
 ENV OCI_CONTAINER=official-heavy
+ENV CARGO_BUILD_PROFILE=balanced
+ENV CARGO_TARGET_PROFILE=heavy-release
 
 ENTRYPOINT ["/bin/ash", "/entrypoint.sh"]

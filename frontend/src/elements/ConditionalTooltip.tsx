@@ -1,18 +1,20 @@
 import { TooltipProps as MantineTooltipProps, Tooltip } from '@mantine/core';
+import classNames from 'classnames';
 import { forwardRef } from 'react';
 
 export interface TooltipProps extends MantineTooltipProps {
   enabled: boolean;
+  innerClassName?: string;
 }
 
 const ConditionalTooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ children, className, enabled, ...rest }, ref) => {
+  ({ children, className, innerClassName, enabled, ...rest }, ref) => {
     return enabled ? (
       <Tooltip ref={ref} className={className} {...rest}>
-        <div>{children}</div>
+        <div className={innerClassName}>{children}</div>
       </Tooltip>
     ) : (
-      <div>{children}</div>
+      <div className={classNames(className, innerClassName)}>{children}</div>
     );
   },
 );

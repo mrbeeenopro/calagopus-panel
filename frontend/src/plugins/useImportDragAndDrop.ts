@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 interface UseFileDragAndDropOptions {
   onDrop: (files: File[]) => Promise<unknown>;
   enabled?: boolean;
+  filterFile?: (file: File) => boolean;
 }
 
 const ACCEPTED_EXTENSIONS = ['.json', '.yaml', '.yml'];
@@ -11,7 +12,11 @@ function isAcceptedFile(file: File): boolean {
   return ACCEPTED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 }
 
-export function useImportDragAndDrop({ onDrop, enabled = true }: UseFileDragAndDropOptions) {
+export function useImportDragAndDrop({
+  onDrop,
+  enabled = true,
+  filterFile = isAcceptedFile,
+}: UseFileDragAndDropOptions) {
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
 
@@ -26,13 +31,13 @@ export function useImportDragAndDrop({ onDrop, enabled = true }: UseFileDragAndD
       if (!enabled) return;
 
       const files = Array.from(e.dataTransfer?.files || []);
-      const acceptedFiles = files.filter(isAcceptedFile);
+      const acceptedFiles = files.filter(filterFile);
 
       if (acceptedFiles.length > 0) {
         await onDrop(acceptedFiles);
       }
     },
-    [enabled, onDrop],
+    [enabled, onDrop, filterFile],
   );
 
   useEffect(() => {

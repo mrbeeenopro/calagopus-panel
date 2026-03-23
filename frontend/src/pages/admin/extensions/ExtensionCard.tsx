@@ -1,6 +1,6 @@
-import { faPuzzlePiece, faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faPuzzlePiece, faTrash, faWrench } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Title } from '@mantine/core';
+import { ActionIcon, Group, Title } from '@mantine/core';
 import { Link } from 'react-router';
 import { Extension } from 'shared';
 import { z } from 'zod';
@@ -9,31 +9,48 @@ import Button from '@/elements/Button.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import Divider from '@/elements/Divider.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
+import Tooltip from '@/elements/Tooltip.tsx';
 import { adminBackendExtensionSchema } from '@/lib/schemas/admin/backendExtension.ts';
 
 export default function ExtensionCard({
   extension,
   backendExtension,
+  isPending,
+  isRemoved,
+  onRemove,
 }: {
   extension?: Extension;
   backendExtension?: z.infer<typeof adminBackendExtensionSchema>;
+  isPending?: boolean;
+  isRemoved?: boolean;
+  onRemove?: () => void;
 }) {
   return (
     <TitleCard
       title={backendExtension?.metadataToml.name || extension?.packageName || 'Unknown Extension'}
       icon={<FontAwesomeIcon icon={faPuzzlePiece} />}
-      className='max-w-xl'
+      className='max-w-96'
     >
       <div className='flex flex-col'>
-        <div className='flex flex-row'>
+        <div className='flex flex-row flex-wrap gap-2 mb-2'>
           {!extension && (
-            <Badge color='red' variant='light' className='mb-2'>
+            <Badge color='red' variant='light'>
               Extension frontend missing
             </Badge>
           )}
           {!backendExtension && (
-            <Badge color='red' variant='light' className='mb-2'>
+            <Badge color='red' variant='light'>
               Extension backend missing
+            </Badge>
+          )}
+          {isPending && (
+            <Badge color='yellow' variant='light'>
+              Pending build
+            </Badge>
+          )}
+          {isRemoved && (
+            <Badge color='yellow' variant='light'>
+              Pending removal
             </Badge>
           )}
         </div>
@@ -72,24 +89,34 @@ export default function ExtensionCard({
           <Divider className='mt-2 mb-4' />
         )}
 
-        <ConditionalTooltip
-          enabled={!backendExtension || !extension?.cardConfigurationPage}
-          label={
-            !backendExtension
-              ? 'Backend extension is required to configure this extension.'
-              : 'This extension does not have a configuration page defined.'
-          }
-        >
-          <Link to={`/admin/extensions/${extension?.packageName}`} className='w-full block'>
-            <Button
-              leftSection={<FontAwesomeIcon icon={faWrench} />}
-              disabled={!backendExtension || !extension?.cardConfigurationPage}
-              className='w-full!'
-            >
-              Configure
-            </Button>
-          </Link>
-        </ConditionalTooltip>
+        <Group>
+          <ConditionalTooltip
+            enabled={!backendExtension || !extension?.cardConfigurationPage}
+            label={
+              !backendExtension
+                ? 'Backend extension is required to configure this extension.'
+                : 'This extension does not have a configuration page defined.'
+            }
+            className='flex-1'
+          >
+            <Link to={`/admin/extensions/${extension?.packageName}`} className='w-full block'>
+              <Button
+                leftSection={<FontAwesomeIcon icon={faWrench} />}
+                disabled={!backendExtension || !extension?.cardConfigurationPage}
+                className='w-full!'
+              >
+                Configure
+              </Button>
+            </Link>
+          </ConditionalTooltip>
+          {backendExtension && onRemove && (
+            <Tooltip label='Remove Extension'>
+              <ActionIcon color='red' size='input-sm' disabled={isRemoved} onClick={onRemove}>
+                <FontAwesomeIcon icon={faTrash} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </Group>
       </div>
     </TitleCard>
   );
