@@ -1176,7 +1176,7 @@
             "max": "Max:"
           },
           "operations": {
-            "uploadingFolder": "Verzeichnis wird hochgeladen: {folder} ({current}/{total} Dateien)",
+            "uploadingFolder": "Verzeichnis wird hochgeladen: {folder} ({files})",
             "waiting": "Warten: ",
             "uploading": "Wird hochgeladen: ",
             "compressing": "Komprimiere {files} von {path}",

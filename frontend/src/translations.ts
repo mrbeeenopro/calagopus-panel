@@ -325,6 +325,13 @@ const baseTranslations = defineTranslations({
           },
         },
       },
+      fileUpload: {
+        toast: {
+          uploading: 'Started uploading {files}...',
+          cancelledFile: 'Successfully cancelled upload of `{file}`.',
+          cancelledFolder: 'Successfully cancelled upload of `{folder}` ({files}).',
+        },
+      },
     },
     pages: {
       oobe: {
@@ -1167,7 +1174,7 @@ const baseTranslations = defineTranslations({
             max: 'Max:',
           },
           operations: {
-            uploadingFolder: 'Uploading folder: {folder} ({current}/{total} files)',
+            uploadingFolder: 'Uploading folder: {folder} ({files})',
             waiting: 'Waiting: ',
             uploading: 'Uploading: ',
             compressing: 'Compressing {files} from {path}',

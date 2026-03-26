@@ -105,8 +105,7 @@ function FileOperationsProgress() {
             const progress = info.totalSize > 0 ? (info.uploadedSize / info.totalSize) * 100 : 0;
             const statusText = t('pages.server.files.operations.uploadingFolder', {
               folder: folderName,
-              current: info.fileCount - info.pendingCount,
-              total: info.fileCount,
+              files: tItem('file', info.fileCount),
             });
 
             return (

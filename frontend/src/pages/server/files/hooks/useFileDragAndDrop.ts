@@ -57,23 +57,28 @@ export function useFileDragAndDrop({ onDrop, enabled = true }: UseFileDragAndDro
       if (!enabled) return;
 
       const items = Array.from(e.dataTransfer?.items || []);
-      const files: File[] = [];
 
+      const entries: Array<{ entry: FileSystemEntry | null; file: File | null }> = [];
       for (const item of items) {
         if (item.kind === 'file') {
-          const entry = item.webkitGetAsEntry?.();
+          entries.push({
+            entry: item.webkitGetAsEntry?.() ?? null,
+            file: item.getAsFile(),
+          });
+        }
+      }
 
-          if (entry) {
-            if (entry.isDirectory) {
-              await traverseDirectory(entry as FileSystemDirectoryEntry, files, entry.name);
-            } else {
-              const file = item.getAsFile();
-              if (file) files.push(file);
-            }
-          } else {
-            const file = item.getAsFile();
-            if (file) files.push(file);
+      const files: File[] = [];
+
+      for (const { entry, file } of entries) {
+        if (entry) {
+          if (entry.isDirectory) {
+            await traverseDirectory(entry as FileSystemDirectoryEntry, files, entry.name);
+          } else if (file) {
+            files.push(file);
           }
+        } else if (file) {
+          files.push(file);
         }
       }
 
