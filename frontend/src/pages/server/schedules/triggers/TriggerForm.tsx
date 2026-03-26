@@ -1,10 +1,15 @@
-import { Popover } from '@mantine/core';
+import { Popover, Stack } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import Select from '@/elements/input/Select.tsx';
+import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import { serverBackupStatusLabelMapping, serverPowerStateLabelMapping } from '@/lib/enums.ts';
+import {
+  serverBackupStatusLabelMapping,
+  serverPowerActionLabelMapping,
+  serverPowerStateLabelMapping,
+} from '@/lib/enums.ts';
 import { serverScheduleTriggerSchema, serverScheduleUpdateSchema } from '@/lib/schemas/server/schedules.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import ScheduleDynamicParameterInput from '../ScheduleDynamicParameterInput.tsx';
@@ -99,12 +104,10 @@ function PowerActionTriggerForm({ form, index }: TriggerFormProps) {
       label={t('pages.server.schedules.triggers.powerAction.form.powerAction', {})}
       placeholder={t('pages.server.schedules.triggers.powerAction.form.powerAction', {})}
       className='flex-1'
-      data={[
-        { value: 'start', label: 'Start' },
-        { value: 'stop', label: 'Stop' },
-        { value: 'restart', label: 'Restart' },
-        { value: 'kill', label: 'Kill' },
-      ]}
+      data={Object.entries(serverPowerActionLabelMapping).map(([value, label]) => ({
+        value,
+        label: label(),
+      }))}
       {...form.getInputProps(`triggers.${index}.action`)}
     />
   );
@@ -166,21 +169,27 @@ function ConsoleLineTriggerForm({ form, index }: TriggerFormProps) {
   );
 }
 
-function ConsoleLineOutputForm({ form, index }: TriggerFormProps) {
+function ConsoleLineExtraForm({ form, index }: TriggerFormProps) {
   const { t } = useTranslations();
 
   if (form.values.triggers[index].type !== 'console_line') return null;
 
   return (
-    <ScheduleDynamicParameterInput
-      label={t('pages.server.schedules.form.outputInto', {})}
-      placeholder={t('pages.server.schedules.form.outputInto', {})}
-      className='mb-2'
-      allowNull
-      allowString={false}
-      value={form.values.triggers[index].outputInto}
-      onChange={(v) => form.setFieldValue(`triggers.${index}.outputInto`, v)}
-    />
+    <Stack>
+      <ScheduleDynamicParameterInput
+        label={t('pages.server.schedules.form.outputInto', {})}
+        placeholder={t('pages.server.schedules.form.outputInto', {})}
+        allowNull
+        allowString={false}
+        value={form.values.triggers[index].outputInto}
+        onChange={(v) => form.setFieldValue(`triggers.${index}.outputInto`, v)}
+      />
+      <Switch
+        label={t('pages.server.schedules.form.caseInsensitive', {})}
+        checked={form.values.triggers[index].caseInsensitive}
+        onChange={(e) => form.setFieldValue(`triggers.${index}.caseInsensitive`, e.currentTarget.checked)}
+      />
+    </Stack>
   );
 }
 
@@ -200,7 +209,7 @@ const TRIGGER_EXTRA_FORMS: Record<ServerScheduleTriggerType, React.FC<TriggerFor
   power_action: null,
   server_state: null,
   backup_status: null,
-  console_line: ConsoleLineOutputForm,
+  console_line: ConsoleLineExtraForm,
   crash: null,
 };
 

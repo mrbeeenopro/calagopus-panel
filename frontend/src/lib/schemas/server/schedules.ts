@@ -38,6 +38,7 @@ export const serverScheduleTriggerBackupStatusSchema = z.object({
 export const serverScheduleTriggerConsoleLineSchema = z.object({
   type: z.literal('console_line'),
   contains: z.string(),
+  caseInsensitive: z.boolean(),
   outputInto: z
     .object({
       variable: z.string(),
@@ -250,6 +251,7 @@ export const serverScheduleStepWaitForConsoleLineSchema = z.object({
   type: z.literal('wait_for_console_line'),
   ignoreFailure: z.boolean(),
   contains: serverScheduleStepDynamicSchema,
+  caseInsensitive: z.boolean(),
   timeout: z.number().min(0),
   outputInto: serverScheduleStepVariableSchema.nullable(),
 });

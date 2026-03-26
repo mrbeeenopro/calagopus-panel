@@ -270,6 +270,7 @@ export const scheduleStepDefaultMapping: Record<
     type: 'wait_for_console_line',
     ignoreFailure: false,
     contains: '',
+    caseInsensitive: false,
     timeout: 5000,
     outputInto: null,
   },
@@ -450,6 +451,6 @@ export const scheduleTriggerDefaultMapping: Record<
   power_action: { type: 'power_action', action: 'start' },
   server_state: { type: 'server_state', state: 'running' },
   backup_status: { type: 'backup_status', status: 'starting' },
-  console_line: { type: 'console_line', contains: '', outputInto: null },
+  console_line: { type: 'console_line', contains: '', caseInsensitive: false, outputInto: null },
   crash: { type: 'crash' },
 };

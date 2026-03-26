@@ -64,7 +64,7 @@ export default function ScheduleCreateOrUpdateModal({ propSchedule, onScheduleUp
         .then(() => {
           addToast(t('pages.server.schedules.toast.updated', {}), 'success');
           onClose();
-          onScheduleUpdate!(form.values);
+          onScheduleUpdate?.(form.values);
         })
         .catch((msg) => {
           addToast(httpErrorToHuman(msg), 'error');
@@ -148,7 +148,7 @@ export default function ScheduleCreateOrUpdateModal({ propSchedule, onScheduleUp
             </div>
           ))}
 
-          <Button onClick={addTrigger} variant='light' leftSection={<FontAwesomeIcon icon={faPlus} />}>
+          <Button onClick={addTrigger} mt='md' variant='light' leftSection={<FontAwesomeIcon icon={faPlus} />}>
             {t('pages.server.schedules.button.addTrigger', {})}
           </Button>
         </div>

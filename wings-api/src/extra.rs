@@ -159,6 +159,9 @@ pub enum ScheduleActionInner {
 
         #[garde(dive)]
         contains: ScheduleDynamicParameter,
+        #[garde(skip)]
+        #[serde(default)]
+        case_insensitive: bool,
         #[garde(range(min = 1, max = 24 * 60 * 60))]
         #[schema(minimum = 1, maximum = 86400)]
         timeout: u64,
@@ -309,7 +312,10 @@ pub enum ScheduleTrigger {
     ConsoleLine {
         #[garde(length(chars, min = 1, max = 1024))]
         #[schema(min_length = 1, max_length = 1024)]
-        contains: String,
+        contains: compact_str::CompactString,
+        #[garde(skip)]
+        #[serde(default)]
+        case_insensitive: bool,
         #[garde(dive)]
         output_into: Option<ScheduleVariable>,
     },

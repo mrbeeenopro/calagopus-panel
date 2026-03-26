@@ -1523,6 +1523,7 @@ const baseTranslations = defineTranslations({
             comparator: 'Comparator',
             rootPath: 'Root Path',
             outputInto: 'Output into',
+            caseInsensitive: 'Case Insensitive',
             ignoreFailure: 'Ignore Failure',
             runInForeground: 'Run in Foreground',
           },
@@ -1650,6 +1651,7 @@ const baseTranslations = defineTranslations({
                 compact: 'Wait {timeout} for console line containing {contains}',
                 detail: {
                   lineContains: 'Line must contain: {contains}',
+                  caseInsensitive: 'Case insensitive: {value}',
                   timeout: 'Timeout: {timeout}',
                 },
               },

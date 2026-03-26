@@ -22,6 +22,10 @@ export default function StepWaitForConsoleLine({
         value={form.getInputProps('contains.root').value}
         onChange={(v) => form.setFieldValue('action.contains', v)}
       />
+      <Switch
+        label={t('pages.server.schedules.form.caseInsensitive', {})}
+        {...form.getInputProps('action.caseInsensitive', { type: 'checkbox' })}
+      />
       <NumberInput
         withAsterisk
         label={t('pages.server.schedules.steps.waitForConsoleLine.form.timeout', {})}

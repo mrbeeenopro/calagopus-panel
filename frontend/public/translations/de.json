@@ -1529,6 +1529,7 @@
             "comparator": "Vergleichsoperator",
             "rootPath": "Root-Pfad",
             "outputInto": "Ausgabe in",
+            "caseInsensitive": "Groß-/Kleinschreibung ignorieren",
             "ignoreFailure": "Fehler ignorieren",
             "runInForeground": "Im Vordergrund ausführen"
           },
@@ -1656,6 +1657,7 @@
                 "compact": "Warte {timeout} auf Konsolenzeile, die {contains} enthält",
                 "detail": {
                   "lineContains": "Zeile muss enthalten: {contains}",
+                  "caseInsensitive": "Groß-/Kleinschreibung ignorieren: {value}",
                   "timeout": "Zeitüberschreitung: {timeout}"
                 }
               }

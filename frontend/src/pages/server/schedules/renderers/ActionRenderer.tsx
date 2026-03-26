@@ -192,6 +192,11 @@ function renderDetailed(action: Action, { t, tReact, tItem }: Translations): Rea
             })}
           </Text>
           <Text size='xs' c='dimmed'>
+            {t('pages.server.schedules.steps.waitForConsoleLine.renderer.detail.caseInsensitive', {
+              value: yesNo(action.caseInsensitive),
+            })}
+          </Text>
+          <Text size='xs' c='dimmed'>
             {t('pages.server.schedules.renderer.ignoreFailure', { value: yesNo(action.ignoreFailure) })}
           </Text>
         </Stack>
