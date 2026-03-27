@@ -73,7 +73,7 @@ export const ContextMenuProvider = ({ children, menuProps }: { children: ReactNo
   return (
     <ContextMenuContext.Provider value={{ state, showMenu, hideMenu }}>
       <Menu
-        disabled={!state.items.some((item) => item.canAccess !== false)}
+        disabled={!state.items.some((item) => !item.hidden && item.canAccess !== false)}
         opened={state.visible}
         onClose={hideMenu}
         width={200}
@@ -99,8 +99,7 @@ export const ContextMenuProvider = ({ children, menuProps }: { children: ReactNo
 
         <Menu.Dropdown>
           {state.items
-            .filter((item) => !item.hidden)
-            .filter((item) => item.canAccess !== false)
+            .filter((item) => !item.hidden && item.canAccess !== false)
             .map((item, idx) =>
               (item.items || []).length > 0 ? (
                 <Menu.Sub key={idx} position={state.x + 300 > window.innerWidth ? 'left-start' : 'right-start'}>
@@ -115,8 +114,8 @@ export const ContextMenuProvider = ({ children, menuProps }: { children: ReactNo
 
                         if (item.onClick) {
                           item.onClick();
+                          hideMenu();
                         }
-                        hideMenu();
                       }}
                     >
                       {item.label}
@@ -124,22 +123,26 @@ export const ContextMenuProvider = ({ children, menuProps }: { children: ReactNo
                   </Menu.Sub.Target>
 
                   <Menu.Sub.Dropdown>
-                    {item.items!.map((subItem, subIdx) => (
-                      <Menu.Item
-                        key={idx.toString() + subIdx.toString()}
-                        leftSection={<FontAwesomeIcon icon={subItem.icon} />}
-                        color={subItem.color === 'red' ? 'red' : undefined}
-                        disabled={subItem.disabled}
-                        onClick={(e) => {
-                          if (!e.isTrusted) return;
+                    {item
+                      .items!.filter((subItem) => !subItem.hidden && subItem.canAccess !== false)
+                      .map((subItem, subIdx) => (
+                        <Menu.Item
+                          key={idx.toString() + subIdx.toString()}
+                          leftSection={<FontAwesomeIcon icon={subItem.icon} />}
+                          color={subItem.color === 'red' ? 'red' : undefined}
+                          disabled={subItem.disabled}
+                          onClick={(e) => {
+                            if (!e.isTrusted) return;
 
-                          subItem.onClick?.();
-                          hideMenu();
-                        }}
-                      >
-                        {subItem.label}
-                      </Menu.Item>
-                    ))}
+                            if (subItem.onClick) {
+                              subItem.onClick();
+                              hideMenu();
+                            }
+                          }}
+                        >
+                          {subItem.label}
+                        </Menu.Item>
+                      ))}
                   </Menu.Sub.Dropdown>
                 </Menu.Sub>
               ) : (
@@ -153,8 +156,8 @@ export const ContextMenuProvider = ({ children, menuProps }: { children: ReactNo
 
                     if (item.onClick) {
                       item.onClick();
+                      hideMenu();
                     }
-                    hideMenu();
                   }}
                 >
                   {item.label}

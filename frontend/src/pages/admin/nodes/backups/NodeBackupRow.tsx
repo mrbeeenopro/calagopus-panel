@@ -67,7 +67,7 @@ export default function NodeBackupRow({
             icon: faFileArrowDown,
             label: t('common.button.download', {}),
             hidden: !backup.completed || isFailed,
-            onClick: !backup.isStreaming ? () => doDownload('tar_gz') : () => null,
+            onClick: !backup.isStreaming ? () => doDownload('tar_gz') : undefined,
             color: 'gray',
             items: backup.isStreaming
               ? Object.entries(streamingArchiveFormatLabelMapping).map(([mime, label]) => ({

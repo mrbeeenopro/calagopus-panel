@@ -139,7 +139,7 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
         {
           icon: faFileArrowDown,
           label: t('common.button.download', {}),
-          onClick: file.file ? () => doDownload('tar_gz') : () => null,
+          onClick: file.file ? () => doDownload('tar_gz') : undefined,
           color: 'gray',
           items: file.directory
             ? Object.entries(streamingArchiveFormatLabelMapping).map(([mime, label]) => ({
@@ -154,7 +154,6 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
         {
           icon: faListDots,
           label: t('pages.server.files.button.more', {}),
-          onClick: () => null,
           color: 'gray',
           items: [
             {

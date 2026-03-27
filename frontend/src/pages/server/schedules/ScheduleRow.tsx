@@ -96,7 +96,6 @@ export default function ScheduleRow({ schedule }: { schedule: z.infer<typeof ser
           {
             icon: faPlay,
             label: t('pages.server.schedules.button.trigger', {}),
-            onClick: () => null,
             items: [
               {
                 icon: faPlayCircle,
@@ -116,7 +115,6 @@ export default function ScheduleRow({ schedule }: { schedule: z.infer<typeof ser
           {
             icon: faShareAlt,
             label: t('common.button.export', {}),
-            onClick: () => null,
             items: [
               {
                 icon: faFileDownload,
