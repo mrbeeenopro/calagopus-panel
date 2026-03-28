@@ -231,7 +231,10 @@
       "sidebar": {
         "button": {
           "logout": "Logout",
-          "stopImpersonating": "Stop Impersonating"
+          "stopImpersonating": "Stop Impersonating",
+          "openInVirtualWindow": "Open in Virtual Window",
+          "openInPopup": "Open in Popup",
+          "openInNewTab": "Open in New Tab"
         }
       },
       "permissionSelector": {

@@ -9,7 +9,7 @@ export interface TitleCardProps {
   children: React.ReactNode;
   className?: string;
   titleClassName?: string;
-  childrenClassName?: string;
+  wrapperClassName?: string;
 
   leftSection?: ReactNode;
   rightSection?: ReactNode;
@@ -21,7 +21,7 @@ export default function TitleCard({
   children,
   className,
   titleClassName,
-  childrenClassName,
+  wrapperClassName,
   leftSection,
   rightSection,
 }: TitleCardProps) {
@@ -56,7 +56,7 @@ export default function TitleCard({
           {rightSection}
         </Group>
       </Box>
-      <div className={classNames('p-4', childrenClassName)}>{children}</div>
+      <div className={classNames('p-4', wrapperClassName)}>{children}</div>
     </Card>
   );
 }

@@ -1,12 +1,10 @@
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'motion/react';
-import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import { FC, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 import Notification from '@/elements/Notification.tsx';
 import { userToastPosition } from '@/lib/schemas/user.ts';
 import { Toast, ToastContext, ToastType } from '@/providers/contexts/toastContext.ts';
-
-let toastId = 1;
 
 const toastTimeout = 7500;
 
@@ -60,9 +58,10 @@ const getToastPositionInitial = (position: z.infer<typeof userToastPosition>) =>
 const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [toastPosition, setToastPosition] = useState<z.infer<typeof userToastPosition>>('bottom_right');
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastId = useRef(1);
 
   const addToast = useCallback((message: ReactNode, type: ToastType = 'success') => {
-    const id = toastId++;
+    const id = toastId.current++;
     setToasts((prev) => [...prev, { id, message, type }]);
 
     setTimeout(() => {
@@ -93,7 +92,7 @@ const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
-              key={toast.id}
+              key={`toast_${toast.id}`}
               initial={getToastPositionInitial(toastPosition)}
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={getToastPositionInitial(toastPosition)}

@@ -209,6 +209,9 @@ const baseTranslations = defineTranslations({
         button: {
           logout: 'Logout',
           stopImpersonating: 'Stop Impersonating',
+          openInVirtualWindow: 'Open in Virtual Window',
+          openInPopup: 'Open in Popup',
+          openInNewTab: 'Open in New Tab',
         },
       },
       permissionSelector: {

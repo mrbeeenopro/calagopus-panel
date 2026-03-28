@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon, Menu } from '@mantine/core';
-import { MouseEvent as ReactMouseEvent, ReactNode, startTransition, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { MemoryRouter, NavLink, useNavigate } from 'react-router';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
@@ -21,6 +21,7 @@ import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useWindows } from '@/providers/WindowProvider.tsx';
 import RouterRoutes from '@/RouterRoutes.tsx';
+import ContextMenu, { ContextMenuProvider } from './ContextMenu.tsx';
 
 type SidebarProps = {
   children: ReactNode;
@@ -41,21 +42,23 @@ function Sidebar({ children }: SidebarProps) {
         </ActionIcon>
       </Card>
 
-      <Drawer
-        opened={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        withCloseButton={false}
-        maw='16rem'
-        styles={{ body: { height: '100%' } }}
-      >
-        <CloseButton size='xl' className='absolute! right-4 z-10' onClick={() => setIsMobileMenuOpen(false)} />
+      <ContextMenuProvider menuProps={{ width: 250 }}>
+        <Drawer
+          opened={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          withCloseButton={false}
+          maw='16rem'
+          styles={{ body: { height: '100%' } }}
+        >
+          <CloseButton size='xl' className='absolute! right-4 z-10' onClick={() => setIsMobileMenuOpen(false)} />
 
-        <div className='h-full flex flex-col overflow-y-auto'>{children}</div>
-      </Drawer>
+          <div className='h-full flex flex-col overflow-y-auto'>{children}</div>
+        </Drawer>
 
-      <Card className='mt-2 top-2 ml-2 sticky! hidden! lg:block! h-[calc(100vh-1rem)] min-w-64!' p='sm'>
-        <div className='h-full flex flex-col overflow-y-auto'>{children}</div>
-      </Card>
+        <Card className='mt-2 top-2 ml-2 sticky! hidden! lg:block! h-[calc(100vh-1rem)] min-w-64!' p='sm'>
+          <div className='h-full flex flex-col overflow-y-auto'>{children}</div>
+        </Card>
+      </ContextMenuProvider>
     </>
   );
 }
@@ -69,62 +72,85 @@ type LinkProps = {
 };
 
 function Link({ to, end, icon, name, title = name }: LinkProps) {
-  const navigate = useNavigate();
+  const { t } = useTranslations();
   const { addWindow } = useWindows();
 
-  const doNavigate = (e: ReactMouseEvent) => {
-    e.preventDefault();
-    startTransition(() => {
-      navigate(to);
-    });
-  };
-
-  const doOpenWindow = (e: ReactMouseEvent) => {
-    e.preventDefault();
-    addWindow(
-      faWindowRestore,
-      title!,
-      <MemoryRouter initialEntries={[to]}>
-        <RouterRoutes isNormal={false} />
-      </MemoryRouter>,
-    );
-  };
-
-  const onContextMenu = (e: ReactMouseEvent) => {
-    // Probably reverse this in the future and open a context menu instead.
-    if (e.shiftKey) {
-      return;
-    }
-    e.preventDefault();
-
-    doOpenWindow(e);
-  };
-
   return (
-    <NavLink to={to} end={end} onClick={doNavigate} onContextMenu={onContextMenu} className='w-full'>
-      {({ isActive }) => (
-        <Button
-          color={isActive ? 'blue' : 'gray'}
-          className={isActive ? 'cursor-default!' : undefined}
-          variant='subtle'
-          fullWidth
-          styles={{ label: { width: '100%' } }}
+    <ContextMenu
+      items={[
+        {
+          icon: faWindowRestore,
+          label: t('elements.sidebar.button.openInVirtualWindow', {}),
+          onClick: () =>
+            addWindow(
+              faWindowRestore,
+              title || 'Window',
+              <MemoryRouter initialEntries={[to]}>
+                <RouterRoutes isNormal={false} />
+              </MemoryRouter>,
+            ),
+          color: 'gray',
+        },
+        {
+          icon: faWindowRestore,
+          label: t('elements.sidebar.button.openInPopup', {}),
+          onClick: () =>
+            window.open(
+              to,
+              '_blank',
+              'popup=yes,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes',
+            ),
+          color: 'gray',
+        },
+        {
+          icon: faWindowRestore,
+          label: t('elements.sidebar.button.openInNewTab', {}),
+          onClick: () => window.open(to, '_blank'),
+          color: 'gray',
+        },
+      ]}
+    >
+      {({ openMenu }) => (
+        <NavLink
+          to={to}
+          end={end}
+          onContextMenu={(e) => {
+            e.preventDefault();
+
+            const rect = e.currentTarget.getBoundingClientRect();
+            openMenu(rect.left, rect.bottom);
+          }}
+          className='w-full'
         >
-          {icon && <FontAwesomeIcon icon={icon} className='mr-2' />} {name}
-        </Button>
+          {({ isActive }) => (
+            <Button
+              color={isActive ? 'blue' : 'gray'}
+              className={isActive ? 'cursor-default!' : undefined}
+              variant='subtle'
+              fullWidth
+              styles={{ label: { width: '100%' } }}
+            >
+              {icon && <FontAwesomeIcon icon={icon} className='mr-2' />} {name}
+            </Button>
+          )}
+        </NavLink>
       )}
-    </NavLink>
+    </ContextMenu>
   );
 }
 
-function Divider() {
-  return <MantineDivider className='my-2' />;
+function Divider({ label }: { label?: string }) {
+  return <MantineDivider className='my-2' label={label} />;
 }
 
 function Footer() {
   const { t } = useTranslations();
   const { impersonating, user, doLogout } = useAuth();
   const navigate = useNavigate();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
@@ -138,12 +164,12 @@ function Footer() {
           }}
         >
           <img
-            src={user!.avatar ?? '/icon.svg'}
-            alt={user!.username}
+            src={user.avatar ?? '/icon.svg'}
+            alt={user.username}
             className='h-10 w-10 rounded-full select-none shrink-0'
           />
           <span className='font-sans font-normal text-sm text-neutral-50 whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
-            {user!.username}
+            {user.username}
           </span>
         </NavLink>
 

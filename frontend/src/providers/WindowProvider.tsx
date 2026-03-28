@@ -1,7 +1,7 @@
 import { faX, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ActionIcon } from '@mantine/core';
-import { FC, ReactNode, startTransition, useCallback, useMemo, useState } from 'react';
+import { FC, ReactNode, startTransition, useCallback, useMemo, useRef, useState } from 'react';
 import { Rnd } from 'react-rnd';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { CurrentWindowProvider } from '@/providers/CurrentWindowProvider.tsx';
@@ -18,10 +18,9 @@ interface WindowType {
   zIndex: number;
 }
 
-let windowId = 1;
-
 const WindowProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [windows, setWindows] = useState<WindowType[]>([]);
+  const windowId = useRef(1);
 
   const closeWindow = useCallback((id: number) => {
     setWindows((prev) => prev.filter((t) => t.id !== id));
@@ -35,7 +34,7 @@ const WindowProvider: FC<{ children: ReactNode }> = ({ children }) => {
     (icon: IconDefinition, title: string, component: ReactNode) => {
       if (windows.length >= MAX_WINDOWS) return -1;
 
-      const id = windowId++;
+      const id = windowId.current++;
 
       startTransition(() => {
         setWindows((prev) => [...prev, { id, icon, title, component, zIndex: BASE_Z_INDEX + prev.length }]);
@@ -113,7 +112,7 @@ const WindowProvider: FC<{ children: ReactNode }> = ({ children }) => {
             key={`window_${w.id}_card`}
             className={`h-full window_${w.id}_card`}
             titleClassName={`window_${w.id}_drag cursor-grab select-none`}
-            childrenClassName='h-full pb-16'
+            wrapperClassName='h-full pb-16'
             icon={<FontAwesomeIcon icon={w.icon} />}
             title={w.title}
             rightSection={
