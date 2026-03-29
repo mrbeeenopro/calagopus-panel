@@ -214,11 +214,16 @@ impl shared::extensions::commands::CliCommand<MigrateArgs> for MigrateCommand {
                         tracing::info!(
                             extension = %extension_identifier,
                             count = migrations.len(),
-                            "applying {} migrations for extension",
+                            "found {} migrations for extension",
                             migrations.len()
                         );
 
-                        for migration in migrations {
+                        let mut ran_migrations = 0;
+
+                        for migration in migrations.into_iter().filter(|m| {
+                            args.unsafe_apply_all
+                                || !applied_migrations.iter().any(|am| am.id == m.id)
+                        }) {
                             tracing::info!(
                                 name = %migration.name,
                                 "applying migration"
@@ -256,7 +261,16 @@ impl shared::extensions::commands::CliCommand<MigrateArgs> for MigrateCommand {
 
                             tracing::info!(name = %migration.name, "successfully applied migration");
                             tracing::info!("");
+
+                            ran_migrations += 1;
                         }
+
+                        tracing::info!(
+                            extension = %extension_identifier,
+                            count = ran_migrations,
+                            "applied {} migrations for extension",
+                            ran_migrations
+                        );
                     }
                 }
 
