@@ -14,6 +14,7 @@ mod post {
             server::Server,
             server_allocation::ServerAllocation,
             server_backup::ServerBackup,
+            server_variable::ServerVariable,
             user::GetPermissionManager,
         },
         response::{ApiResponse, ApiResponseResult},
@@ -131,6 +132,33 @@ mod post {
                                     return Err(shared::response::DisplayError::new("failed to get allocations for server transfer using egg configuration deployment mode").into());
                                 }
                             };
+
+                        if !deployment_variables.is_empty() {
+                            let variables = ServerVariable::all_by_server_uuid_egg_uuid(
+                                &state.database,
+                                server.uuid,
+                                server.egg.uuid,
+                            )
+                            .await?;
+
+                            for (variable_key, variable_value) in deployment_variables.into_iter() {
+                                let variable_uuid = match variables
+                                    .iter()
+                                    .find(|v| v.variable.env_variable == variable_key)
+                                {
+                                    Some(variable) => variable.variable.uuid,
+                                    None => continue,
+                                };
+
+                                ServerVariable::create(
+                                    &state.database,
+                                    server.uuid,
+                                    variable_uuid,
+                                    &variable_value,
+                                )
+                                .await?;
+                            }
+                        }
 
                         allocation_uuid = deployment_allocation_uuid;
                         allocation_uuids = deployment_allocation_uuids;
