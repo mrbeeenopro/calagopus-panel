@@ -238,8 +238,8 @@ impl EggRepository {
 
 #[derive(ToSchema, Deserialize, Validate)]
 pub struct CreateEggRepositoryOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: compact_str::CompactString,
     #[garde(length(max = 1024))]
     #[schema(max_length = 1024)]
@@ -293,8 +293,8 @@ impl CreatableModel for EggRepository {
 
 #[derive(ToSchema, Serialize, Deserialize, Validate, Clone, Default)]
 pub struct UpdateEggRepositoryOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: Option<compact_str::CompactString>,
     #[garde(length(max = 1024))]
     #[schema(max_length = 1024)]

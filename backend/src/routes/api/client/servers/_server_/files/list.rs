@@ -24,6 +24,10 @@ mod get {
         #[garde(skip)]
         #[serde(default)]
         directory: String,
+
+        #[garde(skip)]
+        #[serde(default)]
+        sort: wings_api::DirectorySortingMode,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -61,6 +65,11 @@ mod get {
             description = "The directory to list files from",
             example = "/",
         ),
+        (
+            "sort" = wings_api::DirectorySortingMode, Query,
+            description = "The sorting mode to use for the files",
+            example = "name_asc"
+        ),
     ))]
     pub async fn route(
         state: GetState,
@@ -94,6 +103,7 @@ mod get {
                 server.0.subuser_ignored_files.unwrap_or_default(),
                 params.per_page as u64,
                 params.page as u64,
+                params.sort,
             )
             .await
         {

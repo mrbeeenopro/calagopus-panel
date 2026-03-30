@@ -55,6 +55,8 @@ mod get {
             });
         }
 
+        nests.sort_unstable_by_key(|n| n.nest.created);
+
         ApiResponse::new_serialized(Response { nests }).ok()
     }
 }

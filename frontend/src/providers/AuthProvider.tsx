@@ -40,7 +40,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const doImpersonate = (user: z.infer<typeof fullUserSchema>) => {
-    localStorage.setItem('impersonatedUser', user.uuid);
+    localStorage.setItem('impersonated_user', user.uuid);
 
     navigate('/');
     closeAllWindows();
@@ -56,8 +56,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const doLogout = () => {
-    if (localStorage.getItem('impersonatedUser')) {
-      localStorage.removeItem('impersonatedUser');
+    if (localStorage.getItem('impersonated_user')) {
+      localStorage.removeItem('impersonated_user');
 
       navigate('/');
       setLoading(true);

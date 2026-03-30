@@ -1,5 +1,8 @@
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { join } from 'pathe';
 import { type Ref, useCallback, useEffect, useRef } from 'react';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
@@ -13,7 +16,7 @@ import SelectionArea from '@/elements/SelectionArea.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Table from '@/elements/Table.tsx';
 import { isEditableFile, isViewableArchive, isViewableImage } from '@/lib/files.ts';
-import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { serverDirectoryEntrySchema, serverDirectorySortingModeSchema } from '@/lib/schemas/server/files.ts';
 import FileActionBar from '@/pages/server/files/FileActionBar.tsx';
 import FileBreadcrumbs from '@/pages/server/files/FileBreadcrumbs.tsx';
 import FileModals from '@/pages/server/files/FileModals.tsx';
@@ -31,6 +34,43 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useServerStore } from '@/stores/server.ts';
+
+type ServerFilesColumn = 'name' | 'size' | 'physical_size' | 'modified';
+
+const columnOnClick = (
+  name: ServerFilesColumn,
+  sortMode: z.infer<typeof serverDirectorySortingModeSchema>,
+  setSortMode: (mode: z.infer<typeof serverDirectorySortingModeSchema>) => void,
+) => {
+  return () => {
+    if (sortMode === `${name}_asc`) {
+      setSortMode(`${name}_desc`);
+    } else {
+      setSortMode(`${name}_asc`);
+    }
+  };
+};
+
+function ServerFilesColumnRightSection({ name }: { name: ServerFilesColumn }) {
+  const { sortMode, setSortMode } = useFileManager();
+
+  const isActive = sortMode.startsWith(name);
+  const isAsc = sortMode.endsWith('asc');
+
+  return (
+    <div
+      onClick={columnOnClick(name, sortMode, setSortMode)}
+      className='inline-flex flex-col items-center self-center -mt-0.5'
+    >
+      <FontAwesomeIcon
+        icon={faChevronUp}
+        size='xs'
+        className={classNames('-mb-0.5', isActive && isAsc ? 'text-white' : 'text-gray-400')}
+      />
+      <FontAwesomeIcon icon={faChevronDown} size='xs' className={isActive && !isAsc ? 'text-white' : 'text-gray-400'} />
+    </div>
+  );
+}
 
 function ServerFilesComponent() {
   const { t } = useTranslations();
@@ -51,6 +91,9 @@ function ServerFilesComponent() {
     setBrowsingWritableDirectory,
     setBrowsingFastDirectory,
     doOpenModal,
+    sortMode,
+    setSortMode,
+    preferPhysicalSize,
   } = useFileManager();
   const { addToast } = useToast();
   const [_, setSearchParams] = useSearchParams();
@@ -60,8 +103,8 @@ function ServerFilesComponent() {
   const typeAheadTimeout = useRef<ReturnType<typeof setTimeout>>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['server', server.uuid, 'files', { browsingDirectory, page }],
-    queryFn: () => loadDirectory(server.uuid, browsingDirectory, page),
+    queryKey: ['server', server.uuid, 'files', { browsingDirectory, page, sortMode }],
+    queryFn: () => loadDirectory(server.uuid, browsingDirectory, page, sortMode),
   });
 
   useEffect(() => {
@@ -280,13 +323,40 @@ function ServerFilesComponent() {
             <Table
               columns={
                 window.innerWidth < 768
-                  ? ['', t('common.table.columns.name', {}), t('common.table.columns.size', {}), '']
+                  ? [
+                      { name: '' },
+                      {
+                        name: t('common.table.columns.name', {}),
+                        rightSection: <ServerFilesColumnRightSection name='name' />,
+                        onClick: columnOnClick('name', sortMode, setSortMode),
+                      },
+                      {
+                        name: t('common.table.columns.size', {}),
+                        rightSection: (
+                          <ServerFilesColumnRightSection name={preferPhysicalSize ? 'physical_size' : 'size'} />
+                        ),
+                        onClick: columnOnClick(preferPhysicalSize ? 'physical_size' : 'size', sortMode, setSortMode),
+                      },
+                    ]
                   : [
-                      '',
-                      t('common.table.columns.name', {}),
-                      t('common.table.columns.size', {}),
-                      t('pages.server.files.table.columns.modified', {}),
-                      '',
+                      { name: '' },
+                      {
+                        name: t('common.table.columns.name', {}),
+                        rightSection: <ServerFilesColumnRightSection name='name' />,
+                        onClick: columnOnClick('name', sortMode, setSortMode),
+                      },
+                      {
+                        name: t('common.table.columns.size', {}),
+                        rightSection: (
+                          <ServerFilesColumnRightSection name={preferPhysicalSize ? 'physical_size' : 'size'} />
+                        ),
+                        onClick: columnOnClick(preferPhysicalSize ? 'physical_size' : 'size', sortMode, setSortMode),
+                      },
+                      {
+                        name: t('pages.server.files.table.columns.modified', {}),
+                        rightSection: <ServerFilesColumnRightSection name='modified' />,
+                      },
+                      { name: '' },
                     ]
               }
               pagination={browsingEntries}

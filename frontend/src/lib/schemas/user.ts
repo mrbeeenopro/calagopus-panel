@@ -12,7 +12,7 @@ export const userToastPosition = z.enum([
 
 export const roleSchema = z.object({
   uuid: z.string(),
-  name: z.string().min(3).max(255),
+  name: z.string().min(1).max(255),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),
   requireTwoFactor: z.boolean(),
   adminPermissions: z.array(z.string()),

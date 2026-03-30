@@ -345,8 +345,8 @@ impl ByUuid for EggConfiguration {
 
 #[derive(ToSchema, Deserialize, Validate)]
 pub struct CreateEggConfigurationOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: compact_str::CompactString,
     #[garde(length(chars, min = 1, max = 1024))]
     #[schema(min_length = 1, max_length = 1024)]
@@ -425,8 +425,8 @@ impl CreatableModel for EggConfiguration {
 
 #[derive(ToSchema, Serialize, Deserialize, Validate, Clone, Default)]
 pub struct UpdateEggConfigurationOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: Option<compact_str::CompactString>,
     #[garde(length(chars, min = 1, max = 1024))]
     #[schema(min_length = 1, max_length = 1024)]

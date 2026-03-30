@@ -82,10 +82,6 @@ pub enum CompressionLevel {
     BestCompression,
 }
 
-fn true_fn() -> bool {
-    true
-}
-
 nestify::nest! {
     #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct DirectoryEntry {
         #[schema(inline)]
@@ -99,10 +95,8 @@ nestify::nest! {
         #[schema(inline)]
         pub size_physical: u64,
         #[schema(inline)]
-        #[serde(default = "true_fn")]
         pub editable: bool,
         #[schema(inline)]
-        #[serde(default)]
         pub inner_editable: bool,
         #[schema(inline)]
         pub directory: bool,

@@ -324,8 +324,8 @@ impl ByUuid for DatabaseHost {
 
 #[derive(ToSchema, Deserialize, Validate)]
 pub struct CreateDatabaseHostOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: compact_str::CompactString,
     #[garde(skip)]
     pub r#type: DatabaseType,
@@ -410,8 +410,8 @@ impl CreatableModel for DatabaseHost {
 
 #[derive(ToSchema, Serialize, Deserialize, Validate, Clone, Default)]
 pub struct UpdateDatabaseHostOptions {
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     name: Option<compact_str::CompactString>,
 
     #[garde(skip)]

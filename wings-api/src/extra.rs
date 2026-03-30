@@ -6,7 +6,6 @@ pub type Config = super::system_config::get::Response200;
 
 #[derive(Debug, ToSchema, Deserialize, Serialize, Default, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
-#[schema(rename_all = "snake_case")]
 pub enum StreamableArchiveFormat {
     Tar,
     TarGz,
@@ -40,7 +39,6 @@ impl std::fmt::Display for StreamableArchiveFormat {
 
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
-#[schema(rename_all = "lowercase")]
 pub enum Algorithm {
     Md5,
     Crc32,
@@ -50,15 +48,6 @@ pub enum Algorithm {
     Sha384,
     Sha512,
     Curseforge,
-}
-
-#[derive(ToSchema, Debug, Clone, Copy, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-#[schema(rename_all = "lowercase")]
-pub enum ServerBackupStatus {
-    Starting,
-    Finished,
-    Failed,
 }
 
 impl std::fmt::Display for Algorithm {
@@ -80,9 +69,53 @@ impl std::fmt::Display for Algorithm {
     }
 }
 
+#[derive(Debug, Default, ToSchema, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum DirectorySortingMode {
+    #[default]
+    NameAsc,
+    NameDesc,
+    SizeAsc,
+    SizeDesc,
+    PhysicalSizeAsc,
+    PhysicalSizeDesc,
+    ModifiedAsc,
+    ModifiedDesc,
+    CreatedAsc,
+    CreatedDesc,
+}
+
+impl std::fmt::Display for DirectorySortingMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                DirectorySortingMode::NameAsc => "name_asc",
+                DirectorySortingMode::NameDesc => "name_desc",
+                DirectorySortingMode::SizeAsc => "size_asc",
+                DirectorySortingMode::SizeDesc => "size_desc",
+                DirectorySortingMode::PhysicalSizeAsc => "physical_size_asc",
+                DirectorySortingMode::PhysicalSizeDesc => "physical_size_desc",
+                DirectorySortingMode::ModifiedAsc => "modified_asc",
+                DirectorySortingMode::ModifiedDesc => "modified_desc",
+                DirectorySortingMode::CreatedAsc => "created_asc",
+                DirectorySortingMode::CreatedDesc => "created_desc",
+            }
+        )
+    }
+}
+
+#[derive(ToSchema, Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ServerBackupStatus {
+    Starting,
+    Finished,
+    Failed,
+}
+
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
-#[schema(rename_all = "snake_case")]
 pub enum Game {
     MinecraftJava,
 }
@@ -123,7 +156,6 @@ pub struct ScheduleAction {
 
 #[derive(ToSchema, Validate, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "type")]
-#[schema(rename_all = "snake_case")]
 pub enum ScheduleActionInner {
     Sleep {
         #[garde(range(min = 1, max = 24 * 60 * 60))]
@@ -290,7 +322,6 @@ pub enum ScheduleActionInner {
 
 #[derive(ToSchema, Validate, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "type")]
-#[schema(rename_all = "snake_case")]
 pub enum ScheduleTrigger {
     Cron {
         #[garde(skip)]
@@ -324,7 +355,6 @@ pub enum ScheduleTrigger {
 
 #[derive(ToSchema, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
-#[schema(rename_all = "snake_case")]
 pub enum SchedulePreConditionComparator {
     SmallerThan,
     SmallerThanOrEquals,

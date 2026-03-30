@@ -1,7 +1,6 @@
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Popover } from '@mantine/core';
-import { useEffect } from 'react';
 import Button from '@/elements/Button.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
@@ -10,14 +9,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 export default function FileEditorSettings() {
   const { t } = useTranslations();
   const { editorMinimap, editorLineOverflow, setEditorMinimap, setEditorLineOverflow } = useFileManager();
-
-  useEffect(() => {
-    localStorage.setItem('file_editor_minimap', String(editorMinimap));
-  }, [editorMinimap]);
-
-  useEffect(() => {
-    localStorage.setItem('file_editor_lineOverflow', String(editorLineOverflow));
-  }, [editorLineOverflow]);
 
   return (
     <Popover position='bottom' withArrow shadow='md'>

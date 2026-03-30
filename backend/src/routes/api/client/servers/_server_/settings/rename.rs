@@ -17,8 +17,8 @@ mod post {
 
     #[derive(ToSchema, Validate, Deserialize)]
     pub struct Payload {
-        #[garde(length(chars, min = 3, max = 255))]
-        #[schema(min_length = 3, max_length = 255)]
+        #[garde(length(chars, min = 1, max = 255))]
+        #[schema(min_length = 1, max_length = 255)]
         name: Option<compact_str::CompactString>,
         #[garde(length(max = 1024))]
         #[schema(max_length = 1024)]

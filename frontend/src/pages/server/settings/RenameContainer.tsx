@@ -26,7 +26,7 @@ export default function RenameContainer() {
   const form = useForm<z.infer<typeof serverSettingsRenameSchema>>({
     initialValues: {
       name: server.name,
-      description: server.description ?? '',
+      description: server.description,
     },
     validateInputOnBlur: true,
     validate: zod4Resolver(serverSettingsRenameSchema),

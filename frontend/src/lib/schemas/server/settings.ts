@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { nullableString } from '@/lib/transformers.ts';
 
 export const serverSettingssReinstallSchema = z.object({
   truncateDirectory: z.boolean(),
@@ -14,8 +15,8 @@ export const serverSettingsAutostartSchema = z.object({
 });
 
 export const serverSettingsRenameSchema = z.object({
-  name: z.string().min(3).max(255),
-  description: z.string().max(1024),
+  name: z.string().min(1).max(255),
+  description: z.preprocess(nullableString, z.string().max(1024).nullable()),
 });
 
 export const serverSettingsTimezoneSchema = z.object({

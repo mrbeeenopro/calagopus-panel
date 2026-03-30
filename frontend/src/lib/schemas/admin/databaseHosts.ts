@@ -3,7 +3,7 @@ import { nullableNumber, nullableString } from '@/lib/transformers.ts';
 
 export const adminDatabaseHostSchema = z.object({
   uuid: z.string(),
-  name: z.string().min(3).max(255),
+  name: z.string().min(1).max(255),
   username: z.string().min(3).max(255),
   password: z.string().min(1).max(512),
   host: z.string().min(3).max(255),

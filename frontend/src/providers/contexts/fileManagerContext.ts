@@ -2,7 +2,11 @@ import { createContext, RefObject, useContext } from 'react';
 import { z } from 'zod';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { serverBackupSchema } from '@/lib/schemas/server/backups.ts';
-import { serverDirectoryEntrySchema, serverFilesSearchSchema } from '@/lib/schemas/server/files.ts';
+import {
+  serverDirectoryEntrySchema,
+  serverDirectorySortingModeSchema,
+  serverFilesSearchSchema,
+} from '@/lib/schemas/server/files.ts';
 import { FileUploader } from '@/plugins/useFileUpload.ts';
 
 export type ModalType =
@@ -54,6 +58,8 @@ export interface FileManagerContextType {
   searchInfo: SearchInfo | null;
   setSearchInfo: (info: SearchInfo | null) => void;
 
+  sortMode: z.infer<typeof serverDirectorySortingModeSchema>;
+  setSortMode: (sortMode: z.infer<typeof serverDirectorySortingModeSchema>) => void;
   clickOnce: boolean;
   setClickOnce: (state: boolean) => void;
   preferPhysicalSize: boolean;

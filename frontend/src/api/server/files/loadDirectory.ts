@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { axiosInstance } from '@/api/axios.ts';
-import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { serverDirectoryEntrySchema, serverDirectorySortingModeSchema } from '@/lib/schemas/server/files.ts';
 
 export interface DirectoryResponse {
   isFilesystemWritable: boolean;
@@ -8,11 +8,16 @@ export interface DirectoryResponse {
   entries: Pagination<z.infer<typeof serverDirectoryEntrySchema>>;
 }
 
-export default async (uuid: string, directory: string, page: number): Promise<DirectoryResponse> => {
+export default async (
+  uuid: string,
+  directory: string,
+  page: number,
+  sort: z.infer<typeof serverDirectorySortingModeSchema>,
+): Promise<DirectoryResponse> => {
   return new Promise((resolve, reject) => {
     axiosInstance
       .get(`/api/client/servers/${uuid}/files/list`, {
-        params: { directory: directory ?? '/', page, per_page: 100 },
+        params: { directory: directory ?? '/', page, per_page: 100, sort },
       })
       .then(({ data }) => resolve(data))
       .catch(reject);

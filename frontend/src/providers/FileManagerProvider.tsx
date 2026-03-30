@@ -7,7 +7,7 @@ import { axiosInstance, getEmptyPaginationSet } from '@/api/axios.ts';
 import getFileUploadUrl from '@/api/server/files/getFileUploadUrl.ts';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { serverBackupSchema } from '@/lib/schemas/server/backups.ts';
-import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { serverDirectoryEntrySchema, serverDirectorySortingModeSchema } from '@/lib/schemas/server/files.ts';
 import { useFileUpload } from '@/plugins/useFileUpload.ts';
 import { ActingFileMode, FileManagerContext, ModalType, SearchInfo } from '@/providers/contexts/fileManagerContext.ts';
 import { useServerStore } from '@/stores/server.ts';
@@ -39,6 +39,9 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
   const [openModal, setOpenModal] = useState<ModalType>(null);
   const [modalDirectoryEntries, setModalDirectoryEntries] = useState<z.infer<typeof serverDirectoryEntrySchema>[]>([]);
   const [searchInfo, setSearchInfo] = useState<SearchInfo | null>(null);
+  const [sortMode, setSortMode] = useState<z.infer<typeof serverDirectorySortingModeSchema>>(
+    serverDirectorySortingModeSchema.safeParse(localStorage.getItem('file_sorting_mode')).data ?? 'name_asc',
+  );
   const [clickOnce, setClickOnce] = useState(localStorage.getItem('file_click_once') !== 'false');
   const [preferPhysicalSize, setPreferPhysicalSize] = useState(
     localStorage.getItem('file_prefer_physical_size') === 'true',
@@ -118,6 +121,30 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
     setSelectedFiles(new ObjectSet('name'));
   }, [browsingDirectory]);
 
+  useEffect(() => {
+    localStorage.setItem('file_sorting_mode', sortMode);
+  }, [sortMode]);
+
+  useEffect(() => {
+    localStorage.setItem('file_click_once', clickOnce.toString());
+  }, [clickOnce]);
+
+  useEffect(() => {
+    localStorage.setItem('file_prefer_physical_size', preferPhysicalSize.toString());
+  }, [preferPhysicalSize]);
+
+  useEffect(() => {
+    localStorage.setItem('file_editor_minimap', editorMinimap.toString());
+  }, [editorMinimap]);
+
+  useEffect(() => {
+    localStorage.setItem('file_editor_lineoverflow', editorLineOverflow.toString());
+  }, [editorLineOverflow]);
+
+  useEffect(() => {
+    localStorage.setItem('file_image_viewer_smoothing', imageViewerSmoothing.toString());
+  }, [imageViewerSmoothing]);
+
   return (
     <FileManagerContext.Provider
       value={{
@@ -147,6 +174,8 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
         searchInfo,
         setSearchInfo,
 
+        sortMode,
+        setSortMode,
         clickOnce,
         setClickOnce,
         preferPhysicalSize,

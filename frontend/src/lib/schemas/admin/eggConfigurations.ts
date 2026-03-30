@@ -57,7 +57,7 @@ export const adminEggConfigurationDeploymentSchema: ZodType<EggConfigurationDepl
 
 export const adminEggConfigurationSchema = z.object({
   uuid: z.string(),
-  name: z.string().min(3).max(255),
+  name: z.string().min(1).max(255),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),
   order: z.number().min(0),
   eggs: z.uuid().array(),

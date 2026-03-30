@@ -16,12 +16,24 @@ import { forwardRef, ReactNode, startTransition, useEffect } from 'react';
 import Spinner from '@/elements/Spinner.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export const TableHeader = ({ name }: { name?: string }) => {
+interface TableHeaderProps {
+  name?: string;
+  rightSection?: ReactNode;
+  onClick?: () => void;
+}
+
+export const TableHeader = ({ name, rightSection, onClick }: TableHeaderProps) => {
   if (!name) {
     return <Table.Th className='py-2' />;
   }
 
-  return <Table.Th className='font-normal!'>{name}</Table.Th>;
+  return (
+    <Table.Th className='font-normal!' onClick={onClick}>
+      <div className='flex flex-row items-center gap-2'>
+        <p>{name}</p> {rightSection}
+      </div>
+    </Table.Th>
+  );
 };
 
 export const TableHead = ({ children }: { children: ReactNode }) => {
@@ -113,15 +125,7 @@ export function Pagination<T>({ data, onPageSelect, ...props }: PaginationProps<
           total: data.total,
         })}
       </p>
-      <MantinePagination
-        styles={{
-          dots: { display: 'none' },
-        }}
-        boundaries={0}
-        value={data.page}
-        total={totalPages}
-        onChange={setPage}
-      />
+      <MantinePagination boundaries={1} value={data.page} total={totalPages} onChange={setPage} />
     </Group>
   );
 }
@@ -140,7 +144,7 @@ export const NoItems = () => {
 };
 
 interface TableProps {
-  columns: string[];
+  columns: string[] | TableHeaderProps[];
   loading?: boolean;
   pagination?: Pagination<unknown>;
   onPageSelect?: (page: number) => void;
@@ -162,7 +166,7 @@ export default ({ columns, loading, pagination, onPageSelect, allowSelect = true
       >
         <TableHead>
           {columns.map((column, index) => (
-            <TableHeader key={`column-${index}`} name={column} />
+            <TableHeader key={`column-${index}`} {...(typeof column === 'string' ? { name: column } : column)} />
           ))}
         </TableHead>
         <Table.Tbody>

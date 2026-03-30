@@ -202,8 +202,8 @@ impl ByUuid for Location {
 pub struct CreateLocationOptions {
     #[garde(skip)]
     pub backup_configuration_uuid: Option<uuid::Uuid>,
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: compact_str::CompactString,
     #[garde(length(chars, min = 1, max = 1024))]
     #[schema(min_length = 1, max_length = 1024)]
@@ -275,8 +275,8 @@ pub struct UpdateLocationOptions {
         with = "::serde_with::rust::double_option"
     )]
     pub backup_configuration_uuid: Option<Option<uuid::Uuid>>,
-    #[garde(length(chars, min = 3, max = 255))]
-    #[schema(min_length = 3, max_length = 255)]
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
     pub name: Option<compact_str::CompactString>,
     #[garde(length(chars, min = 1, max = 1024))]
     #[schema(min_length = 1, max_length = 1024)]

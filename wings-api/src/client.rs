@@ -482,6 +482,7 @@ impl WingsClient {
         ignored: Vec<compact_str::CompactString>,
         per_page: u64,
         page: u64,
+        sort: DirectorySortingMode,
     ) -> Result<super::servers_server_files_list::get::Response, ApiHttpError> {
         let directory = urlencoding::encode(directory);
         let ignored = ignored
@@ -489,7 +490,7 @@ impl WingsClient {
             .map(|s| urlencoding::encode(&s).into())
             .collect::<Vec<compact_str::CompactString>>()
             .join("&ignored=");
-        request_impl(self, Method::GET, format!("/api/servers/{server}/files/list?directory={directory}&ignored={ignored}&per_page={per_page}&page={page}"), None::<&()>, None).await
+        request_impl(self, Method::GET, format!("/api/servers/{server}/files/list?directory={directory}&ignored={ignored}&per_page={per_page}&page={page}&sort={sort}"), None::<&()>, None).await
     }
 
     pub async fn get_servers_server_files_list_directory(

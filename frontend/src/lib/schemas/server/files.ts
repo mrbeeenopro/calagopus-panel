@@ -121,6 +121,19 @@ export const serverFileOperationSchema = z.discriminatedUnion('type', [
   serverFileOperationCopyRemoteSchema,
 ]);
 
+export const serverDirectorySortingModeSchema = z.enum([
+  'name_asc',
+  'name_desc',
+  'size_asc',
+  'size_desc',
+  'physical_size_asc',
+  'physical_size_desc',
+  'modified_asc',
+  'modified_desc',
+  'created_asc',
+  'created_desc',
+]);
+
 export const serverDirectoryEntrySchema = z.object({
   name: z.string(),
   mode: z.string(),

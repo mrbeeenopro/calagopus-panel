@@ -9,7 +9,7 @@ export const adminNodeSchema = z.object({
   uuid: z.string(),
   location: z.lazy(() => adminLocationSchema),
   backupConfiguration: z.lazy(() => adminBackupConfigurationSchema).nullable(),
-  name: z.string().min(3).max(255),
+  name: z.string().min(1).max(255),
   deploymentEnabled: z.boolean(),
   maintenanceEnabled: z.boolean(),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),

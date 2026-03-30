@@ -12,7 +12,7 @@ export const adminEggSchema = z.object({
   uuid: z.string(),
   eggRepositoryEgg: adminEggEggRepositoryEggSchema.nullable(),
   author: z.string().min(2).max(255),
-  name: z.string().min(3).max(255),
+  name: z.string().min(1).max(255),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),
   configFiles: z.array(
     z.object({

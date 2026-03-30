@@ -1,7 +1,6 @@
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Popover } from '@mantine/core';
-import { useEffect } from 'react';
 import Button from '@/elements/Button.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
@@ -10,10 +9,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 export default function FileImageViewerSettings() {
   const { t } = useTranslations();
   const { imageViewerSmoothing, setImageViewerSmoothing } = useFileManager();
-
-  useEffect(() => {
-    localStorage.setItem('file_image_viewer_smoothing', String(imageViewerSmoothing));
-  }, [imageViewerSmoothing]);
 
   return (
     <Popover position='bottom' withArrow shadow='md'>
