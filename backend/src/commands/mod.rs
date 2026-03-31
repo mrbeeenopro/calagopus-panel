@@ -3,9 +3,9 @@ use shared::extensions::commands::CliCommandGroupBuilder;
 mod diagnostics;
 mod extensions;
 mod import;
-mod nest;
+mod nests;
 mod service_install;
-mod user;
+mod users;
 mod version;
 
 pub fn commands(cli: CliCommandGroupBuilder) -> CliCommandGroupBuilder {
@@ -24,8 +24,8 @@ pub fn commands(cli: CliCommandGroupBuilder) -> CliCommandGroupBuilder {
         "Gets Diagnostic Data for the Panel.",
         diagnostics::DiagnosticsCommand,
     )
-    .add_group("user", "Manage users within the Panel.", user::commands)
-    .add_group("nest", "Manage nests within the Panel.", nest::commands)
+    .add_group("users", "Manage users within the Panel.", users::commands)
+    .add_group("nests", "Manage nests within the Panel.", nests::commands)
     .add_group(
         "import",
         "Import data from other panel software into Calagopus.",

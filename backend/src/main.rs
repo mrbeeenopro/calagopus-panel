@@ -781,30 +781,30 @@ async fn main() {
                     let status = response.status();
                     let headers = response.headers().clone();
 
-                    if status == axum::http::StatusCode::SWITCHING_PROTOCOLS && is_upgrade {
-                        if let Some(on_upgrade) = on_upgrade {
-                            tokio::spawn(async move {
-                                let (client_stream_raw, mut upstream_stream) =
-                                    match tokio::join!(on_upgrade, response.upgrade()) {
-                                        (Ok(c), Ok(u)) => (c, u),
-                                        _ => return,
-                                    };
+                    if status == axum::http::StatusCode::SWITCHING_PROTOCOLS
+                        && is_upgrade
+                        && let Some(on_upgrade) = on_upgrade
+                    {
+                        tokio::spawn(async move {
+                            let (client_stream_raw, mut upstream_stream) =
+                                match tokio::join!(on_upgrade, response.upgrade()) {
+                                    (Ok(c), Ok(u)) => (c, u),
+                                    _ => return,
+                                };
 
-                                let mut client_stream =
-                                    hyper_util::rt::TokioIo::new(client_stream_raw);
+                            let mut client_stream = hyper_util::rt::TokioIo::new(client_stream_raw);
 
-                                let _ = tokio::io::copy_bidirectional(
-                                    &mut client_stream,
-                                    &mut upstream_stream,
-                                )
-                                .await;
-                            });
+                            let _ = tokio::io::copy_bidirectional(
+                                &mut client_stream,
+                                &mut upstream_stream,
+                            )
+                            .await;
+                        });
 
-                            return ApiResponse::new(Body::empty())
-                                .with_status(status)
-                                .with_headers(&headers)
-                                .ok();
-                        }
+                        return ApiResponse::new(Body::empty())
+                            .with_status(status)
+                            .with_headers(&headers)
+                            .ok();
                     }
 
                     return ApiResponse::new(Body::from_stream(response.bytes_stream()))
