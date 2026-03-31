@@ -1,6 +1,4 @@
 import { Group, Title } from '@mantine/core';
-import debounce from 'debounce';
-import { useEffect, useRef, useState } from 'react';
 import { ServerCan } from '@/elements/Can.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -13,26 +11,6 @@ import ServerStats from './ServerStats.tsx';
 export default function ServerConsole() {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
-
-  const [maxConsoleHeight, setMaxConsoleHeight] = useState<number | null>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (statsRef.current) {
-      setMaxConsoleHeight(statsRef.current.clientHeight);
-
-      const handleResize = debounce(() => {
-        setMaxConsoleHeight(statsRef.current?.clientHeight || null);
-      }, 100);
-
-      const observer = new ResizeObserver(handleResize);
-      observer.observe(statsRef.current);
-
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, [statsRef.current]);
 
   return (
     <ServerContentContainer
@@ -53,11 +31,11 @@ export default function ServerConsole() {
       </Group>
 
       <div className='grid xl:grid-cols-4 gap-4 mb-4'>
-        <div className='xl:col-span-3' style={{ height: maxConsoleHeight ?? 0 }}>
+        <div className='xl:col-span-3 flex flex-col h-[60vh] xl:h-auto'>
           <Console />
         </div>
 
-        <div className='h-fit' ref={statsRef}>
+        <div className='flex flex-col'>
           <ServerDetails />
         </div>
       </div>

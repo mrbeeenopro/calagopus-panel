@@ -215,6 +215,41 @@ export default function Terminal() {
   }, []);
 
   useEffect(() => {
+    const terminalElement = terminalRef.current;
+    if (!terminalElement) return;
+
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY - currentY;
+
+      const pixelsPerLine = consoleFontSize + 4;
+
+      if (Math.abs(deltaY) > pixelsPerLine) {
+        const linesToScroll = Math.trunc(deltaY / pixelsPerLine);
+        xtermInstance.current?.scrollLines(linesToScroll);
+
+        touchStartY -= linesToScroll * pixelsPerLine;
+      }
+    };
+
+    terminalElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+    terminalElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      terminalElement.removeEventListener('touchstart', handleTouchStart);
+      terminalElement.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [consoleFontSize]);
+
+  useEffect(() => {
     let pingInterval: ReturnType<typeof setInterval>;
 
     if (socketConnected && socketInstance) {
@@ -532,7 +567,7 @@ export default function Terminal() {
 
         {!socketConnected && <Spinner.Centered />}
 
-        <div className='flex-1 relative overflow-hidden'>
+        <div className='flex-1 min-h-0 relative overflow-hidden'>
           <div ref={terminalRef} className='absolute inset-0' />
         </div>
 
