@@ -42,7 +42,7 @@ mod post {
         permissions.has_server_permission(match data.action {
             wings_api::ServerPowerAction::Start => "control.start",
             wings_api::ServerPowerAction::Stop => "control.stop",
-            wings_api::ServerPowerAction::Kill => "control.kill",
+            wings_api::ServerPowerAction::Kill => "control.stop",
             wings_api::ServerPowerAction::Restart => "control.restart",
         })?;
 
