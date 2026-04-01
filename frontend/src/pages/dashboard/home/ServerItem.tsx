@@ -76,7 +76,7 @@ export default function ServerItem({
             }}
           >
             <Card
-              className='duration-200 h-full flex flex-col justify-between rounded-sm!'
+              className='duration-200 h-full flex flex-col justify-between rounded-xl!'
               leftStripeClassName={statusToColor(stats?.state)}
               hoverable
             >
@@ -118,25 +118,25 @@ export default function ServerItem({
                     server.egg.separatePort ? (
                       <div className='flex flex-row gap-2'>
                         <CopyOnClick content={server.allocation.ipAlias ?? server.allocation.ip} className='w-fit'>
-                          <Card p='xs' hoverable>
+                          <Card p='xs' hoverable className='leading-[100%] text-nowrap rounded-lg!'>
                             <p className='text-sm text-gray-400'>{server.allocation.ipAlias ?? server.allocation.ip}</p>
                           </Card>
                         </CopyOnClick>
                         <CopyOnClick content={server.allocation.port.toString()} className='w-fit'>
-                          <Card p='xs' hoverable>
+                          <Card p='xs' hoverable className='leading-[100%] text-nowrap rounded-lg!'>
                             <p className='text-sm text-gray-400'>{server.allocation.port.toString()}</p>
                           </Card>
                         </CopyOnClick>
                       </div>
                     ) : (
                       <CopyOnClick content={formatAllocation(server.allocation)} className='w-fit'>
-                        <Card p='xs' hoverable>
+                        <Card p='xs' hoverable className='leading-[100%] text-nowrap rounded-lg!'>
                           <p className='text-sm text-gray-400'>{formatAllocation(server.allocation)}</p>
                         </Card>
                       </CopyOnClick>
                     )
                   ) : (
-                    <Card p='xs' className='leading-[100%] text-nowrap'>
+                    <Card p='xs' className='leading-[100%] text-nowrap rounded-lg!'>
                       {t('common.server.noAllocation', {})}
                     </Card>
                   )}

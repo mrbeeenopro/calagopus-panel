@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, startTransition, useEffect, useMemo, useState } from 'react';
+import { ComponentProps, memo, startTransition, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import getServerGroups from '@/api/me/servers/groups/getServerGroups.ts';
@@ -98,7 +98,10 @@ export default function DashboardHome() {
                   key={serverGroup.id}
                   id={serverGroup.id}
                   renderItem={({ dragHandleProps }) => (
-                    <MemoizedServerGroupItem serverGroup={serverGroup} dragHandleProps={dragHandleProps} />
+                    <MemoizedServerGroupItem
+                      serverGroup={serverGroup}
+                      dragHandleProps={dragHandleProps as unknown as ComponentProps<'button'>}
+                    />
                   )}
                 />
               ))}

@@ -470,7 +470,7 @@ export default function Terminal() {
                   </ActionIcon>
                 </Tooltip>
               </Popover.Target>
-              <Popover.Dropdown className='flex flex-row space-x-2'>
+              <Popover.Dropdown className='flex flex-row gap-2' p='xs'>
                 <TextInput
                   placeholder={t('common.input.search', {})}
                   value={searchText}

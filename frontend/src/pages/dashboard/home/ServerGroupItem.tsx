@@ -11,6 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Collapse, Menu } from '@mantine/core';
+import classNames from 'classnames';
 import { ComponentProps, memo, startTransition, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { getEmptyPaginationSet, httpErrorToHuman } from '@/api/axios.ts';
@@ -59,7 +60,7 @@ export default function ServerGroupItem({
   dragHandleProps,
 }: {
   serverGroup: z.infer<typeof userServerGroupSchema>;
-  dragHandleProps: ComponentProps<'div'>;
+  dragHandleProps: ComponentProps<'button'>;
 }) {
   const { t, tItem } = useTranslations();
   const { updateServerGroup: updateStateServerGroup, removeServerGroup } = useUserStore();
@@ -130,19 +131,18 @@ export default function ServerGroupItem({
         }).md()}
       </ConfirmationModal>
 
-      <Card key={serverGroup.uuid} p={0} className='overflow-hidden'>
-        <div className='flex gap-3 px-3 bg-(--mantine-color-dark-7)'>
-          <div
+      <Card key={serverGroup.uuid} p={0} className='overflow-hidden rounded-xl!'>
+        <div className='flex flex-row items-center gap-3 px-3 bg-(--mantine-color-dark-7)'>
+          <ActionIcon
+            size='md'
+            variant='subtle'
+            color='gray'
+            style={{ cursor: 'grab', flexShrink: 0 }}
+            className='text-gray-400!'
             {...dragHandleProps}
-            className='flex items-center text-gray-500 hover:text-gray-300 transition-colors'
-            style={{
-              ...dragHandleProps.style,
-              touchAction: 'none',
-              cursor: 'grab',
-            }}
           >
-            <FontAwesomeIcon icon={faGripVertical} className='w-3.5 h-3.5' />
-          </div>
+            <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 16 }} />
+          </ActionIcon>
 
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -150,7 +150,10 @@ export default function ServerGroupItem({
           >
             <FontAwesomeIcon
               icon={faChevronRight}
-              className={`${isExpanded ? 'rotate-90' : 'rotate-0'} transition duration-200 w-3 h-3 text-gray-400 shrink-0`}
+              className={classNames(
+                isExpanded ? 'rotate-90' : 'rotate-0',
+                'transition duration-200 w-3 h-3 text-gray-400 shrink-0',
+              )}
             />
             <span className='font-medium text-white truncate'>{serverGroup.name}</span>
             <Badge size='sm' variant='light' color='gray' className='shrink-0'>
@@ -158,7 +161,7 @@ export default function ServerGroupItem({
             </Badge>
           </button>
 
-          <div className='flex items-center gap-1 py-2.5'>
+          <div className='flex flex-row items-center gap-1 py-2.5'>
             <TextInput
               placeholder={t('common.input.search', {})}
               size='xs'
