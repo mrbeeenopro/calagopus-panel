@@ -212,7 +212,7 @@
         "toast": {
           "Đã sao chép": "Đã sao chép vào bộ nhớ tạm.",
           "failed": "Thất bại khi sao chép vào bộ nhớ tạm.",
-          "copyManual": "Vui lòng sao chép thủ công:"
+          "copyManual": "Sao chép: Ctrl+C hoặc Command+C, Enter"
         }
       },
       "estimatedTimeArrival": {
@@ -300,11 +300,11 @@
         "error": {
           "connectionFailed": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn và thử lại.",
           "connectionClosed": "Kết nối đến máy chủ đã bị đóng. Đang cố gắng kết nối lại...",
-          "connectionRetry": "Mất kết nối. Đang thử lại (lần {attempt})...",
+          "connectionRetry": "Mất kết nối đang thử  lại ({attempt})...",
           "authFailed": "Xác thực thất bại. Đang cố gắng làm mới thông tin đăng nhập... ({error})",
           "authRefreshFailed": "Không thể làm mới thông tin đăng nhập. Vui lòng làm mới trang để thử lại.",
           "permissionRevoked": "Kết nối đã bị đóng: quyền truy cập vào máy chủ này đã bị thu hồi.",
-          "tokenRefreshLoop": "Không thể làm mới thông tin đăng nhập. Đang cố gắng làm mới lại... ({attempt})"
+          "tokenRefreshLoop": "Đã phát hiện lỗi xác thực lặp lại. Vui lòng làm mới trang để thử lại."
         },
         "banner": {
           "retrying": "Thử lại trong {countdown}..."
@@ -458,7 +458,8 @@
             "noNodes": "Đã xảy ra lỗi. Không tìm thấy node nào.",
             "connectionError": "Đã xảy ra lỗi. Lỗi kết nối."
           },
-          "successMessage": "Kết nối với node của bạn đã được xác minh thành công. Bạn có thể tiếp tục.",
+          "successMessage": "Kết nối với node đã hoàn thành xác minh. Bạn có thể tiếp tục.",
+          "configurationDescription": "Thêm đoạn mã này vào tệp cấu hình tại `{file}` hoặc chạy lệnh sau:",
           "button": {
             "continue": "Tiếp tục"
           }
@@ -827,7 +828,7 @@
           "removed": "Hình đại diện đã được xóa thành công."
               },
               "form": {
-          "avatar": "Hình Đại Diện"
+                "avatar": "Hình Đại Diện"
               }
             }
           },
@@ -879,7 +880,7 @@
           "content": "Bạn có chắc muốn xóa phiên làm việc **{ip}** khỏi tài khoản của bạn không?",
           "toast": {
             "deleted": "Phiên làm việc đã được xóa."
-          }
+          
               }
             }
           }
@@ -1468,7 +1469,7 @@
             }
           },
           "button": {
-            "Nhập": "Nhập",
+            "import": "Nhập",
             "trigger": "Kích Hoạt",
             "triggerWithCondition": "Kích Hoạt (không bỏ qua điều kiện)",
             "triggerSkipCondition": "Kích Hoạt (bỏ qua điều kiện)",
@@ -1481,7 +1482,7 @@
             "exitEditor": "Thoát Trình Soạn Thảo"
           },
           "toast": {
-            "Nhậped": "Lịch trình đã được nhập.",
+            "imported": "Lịch trình đã được nhập.",
             "created": "Lịch trình đã được tạo.",
             "updated": "Lịch trình đã được cập nhật.",
             "deleted": "Lịch trình đã được xóa.",
@@ -2112,7 +2113,7 @@
           "reinstall": {
             "title": "Cài đặt lại Máy Chủ",
             "button": "Cài đặt lại Máy Chủ",
-            "content": "Cài đặt lại máy chủ sẽ xóa tất cả dữ liệu hiện có trên máy chủ và cài đặt lại nó về trạng thái ban đầu. Bạn có chắc muốn tiếp tục không?",
+            "content": "Cài đặt lại máy chủ sẽ xóa **tất cả dữ liệu hiện có trên máy chủ và cài đặt lại nó về trạng thái ban đầu**. Bạn có chắc muốn tiếp tục không?",
             "modal": {
               "title": "Xác Nhận Cài Đặt Lại Máy Chủ",
               "button": "Cài đặt lại",
